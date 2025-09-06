@@ -1,0 +1,97 @@
+import { createFileRoute } from "@tanstack/react-router";
+
+export const Route = createFileRoute("/contact")({
+  component: RouteComponent,
+});
+
+function RouteComponent() {
+  return (
+    <div>
+      <div className="bg-background min-h-screen px-4 py-12 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-4xl">
+          <h1 className="text-foreground mb-8 text-center text-3xl font-bold tracking-tight">
+            Contact Us
+          </h1>
+          <div className="text-foreground/90 space-y-6">
+            <p className="leading-relaxed">
+              If you have any questions or would like to get in touch with us,
+              please feel free to contact our team members below or the
+              organization maintaining this site.
+            </p>
+          </div>
+
+          {/* Organization Contact Section */}
+          <div className="mt-16 border-t border-gray-200 pt-8 text-center">
+            <h2 className="text-foreground mb-4 text-2xl font-semibold">
+              Maintained By
+            </h2>
+            <p className="text-foreground/90 mx-auto max-w-2xl">
+              This OpenCourseWare site is proudly maintained by the Cherry Creek
+              High School&apos;s Computer Science Honor Society. For general
+              inquiries about the site&apos;s maintenance or the organization,
+              please contact:
+            </p>
+            <a
+              href="mailto:cherrycreekcshs@gmail.com" // <-- REPLACE WITH ACTUAL EMAIL
+              className="mt-4 inline-block text-blue-600 hover:text-blue-800 hover:underline"
+            >
+              cherrycreekcshs@gmail.com
+            </a>
+          </div>
+
+          {/* Individual Contacts Grid */}
+          <div className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-2">
+            {/* Aniketh Chenjeri */}
+            <div className="flex flex-col items-center text-center">
+              <img
+                src="https://ugakd4mkxv.ufs.sh/f/QRXW6mPDvNgcf1bAHpXv5c4nkOatgwsmYj96KRpli3hUEdx1"
+                alt="Aniketh Chenjeri"
+                width={80} // Keep width and height consistent for aspect ratio
+                height={80} // Make height same as width for circle
+                className="mb-4 h-20 w-20 rounded-full object-cover" // Added w-20 and object-cover
+              />
+              <h2 className="text-foreground text-xl font-semibold">
+                Aniketh Chenjeri
+              </h2>
+              <p className="text-foreground/90">
+                Aniketh serves as the Project Lead and Lead Developer. In this
+                dual role, he directs the project&apos;s development and manages
+                the content presented on the site.
+              </p>
+              <a
+                href="mailto:anikethchenjeri@gmail.com"
+                className="mt-4 text-blue-600 hover:text-blue-800 hover:underline"
+              >
+                anikethchenjeri@gmail.com
+              </a>
+            </div>
+
+            {/* Jason Chen */}
+            <div className="flex flex-col items-center text-center">
+              <img
+                src="https://ugakd4mkxv.ufs.sh/f/QRXW6mPDvNgcBOk5v5CzYZbKVLiWvQ9r1lpMUyjw58osCXnO"
+                alt="Jason Chen"
+                width={80} // Keep width and height consistent for aspect ratio
+                height={80} // Make height same as width for circle
+                className="mb-4 h-20 w-20 rounded-full object-cover" // Corrected classes, added w-20 and object-cover
+              />
+              <h2 className="text-xl font-semibold text-gray-900">
+                Jason Chen
+              </h2>
+              <p className="text-gray-600">
+                Jason is the Co-Founder of the original OpenCourseWare platform
+                and is helping develop the current site.
+              </p>
+              <a
+                href="mailto:jchen3200@gatech.edu"
+                className="mt-4 text-blue-600 hover:text-blue-800 hover:underline"
+              >
+                jchen3200@gatech.edu
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
