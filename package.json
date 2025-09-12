@@ -15,7 +15,9 @@
 		"dev:server": "turbo -F @ocw-convex/backend dev",
 		"dev:setup": "turbo -F @ocw-convex/backend dev:setup"
 	},
-	"dependencies": {},
+	"dependencies": {
+		"notion-client": "^7.4.3"
+	},
 	"devDependencies": {
 		"turbo": "^2.5.4",
 		"@biomejs/biome": "2.2.2",
