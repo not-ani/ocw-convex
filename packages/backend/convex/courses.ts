@@ -91,3 +91,60 @@ export const getCourseWithUnitsAndLessons = query({
     return { ...course, units: unitsWithLessons };
   },
 });
+
+export const getDashboardSummary = query({
+  args: { courseId: v.id("courses") },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) return null;
+
+    const membership = await ctx.db
+      .query("courseUsers")
+      .withIndex("by_course_and_user", (q) =>
+        q.eq("courseId", args.courseId).eq("userId", identity.tokenIdentifier)
+      )
+      .unique();
+
+    if (!(membership && (membership.role === "admin" || membership.role === "editor"))) {
+      return null;
+    }
+
+    const course = await ctx.db.get(args.courseId);
+    if (!course) return null;
+
+    const units = await ctx.db
+      .query("units")
+      .withIndex("by_course_id", (q) => q.eq("courseId", course._id))
+      .collect();
+
+    const lessons = await ctx.db
+      .query("lessons")
+      .withIndex("by_course_id", (q) => q.eq("courseId", course._id))
+      .collect();
+
+    const publishedUnits = units.filter((u) => u.isPublished).length;
+    const publishedLessons = lessons.filter((l) => l.isPublished).length;
+
+    const last10Logs = await ctx.db
+      .query("logs")
+      .withIndex("by_course_id", (q) => q.eq("courseId", course._id))
+      .order("desc")
+      .take(10);
+
+    return {
+      course: { id: course._id, name: course.name, description: course.description },
+      counts: {
+        units: units.length,
+        lessons: lessons.length,
+        publishedUnits,
+        publishedLessons,
+      },
+      recentActivity: last10Logs.map((l) => ({
+        id: l._id,
+        action: l.action,
+        timestamp: l.timestamp ?? l._creationTime,
+        userId: l.userId,
+      })),
+    } as const;
+  },
+});

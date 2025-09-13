@@ -14,11 +14,13 @@ import type {
   FunctionReference,
 } from "convex/server";
 import type * as convertIds from "../convertIds.js";
+import type * as courseUsers from "../courseUsers.js";
 import type * as courses from "../courses.js";
 import type * as healthCheck from "../healthCheck.js";
 import type * as lesson from "../lesson.js";
 import type * as privateData from "../privateData.js";
 import type * as todos from "../todos.js";
+import type * as units from "../units.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -30,11 +32,13 @@ import type * as todos from "../todos.js";
  */
 declare const fullApi: ApiFromModules<{
   convertIds: typeof convertIds;
+  courseUsers: typeof courseUsers;
   courses: typeof courses;
   healthCheck: typeof healthCheck;
   lesson: typeof lesson;
   privateData: typeof privateData;
   todos: typeof todos;
+  units: typeof units;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,
