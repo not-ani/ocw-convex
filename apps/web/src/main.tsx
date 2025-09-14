@@ -2,6 +2,7 @@ import { RouterProvider, createRouter } from "@tanstack/react-router";
 import ReactDOM from "react-dom/client";
 import Loader from "./components/loader";
 import { routeTree } from "./routeTree.gen";
+import { PostHogProvider } from "posthog-js/react";
 
 import { ConvexReactClient } from "convex/react";
 import { ClerkProvider, useAuth } from "@clerk/clerk-react";
@@ -40,5 +41,17 @@ if (!rootElement) {
 
 if (!rootElement.innerHTML) {
 	const root = ReactDOM.createRoot(rootElement);
-	root.render(<RouterProvider router={router} />);
+	root.render(
+		<PostHogProvider
+			apiKey={import.meta.env.VITE_PUBLIC_POSTHOG_KEY}
+			options={{
+				api_host: import.meta.env.VITE_PUBLIC_POSTHOG_HOST,
+				defaults: '2025-05-24',
+				capture_exceptions: true,
+				debug: import.meta.env.MODE === "development",
+			}}
+		>
+			<RouterProvider router={router} />
+		</PostHogProvider>
+	);
 }

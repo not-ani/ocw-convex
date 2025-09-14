@@ -16,8 +16,6 @@ function RouteComponent() {
     id: lessonId as Id<"lessons">,
   });
 
-  console.error(lesson);
-
   if (!lesson) {
     return <div>Loading...</div>;
   }
@@ -26,8 +24,8 @@ function RouteComponent() {
     <main className="h-min-screen w-full">
       <LessonEmbed
         contentType={lesson.lesson.contentType}
-        embedId={lesson.embed.embedId ?? null}
-        password={lesson.embed.quizletPassword ?? null}
+        embedId={lesson.embed.embedUrl ?? null}
+        password={lesson.embed.password ?? null}
       />
       <code className="bg-white text-3xl">
         {JSON.stringify(lesson, null, 2)}
@@ -58,5 +56,7 @@ function LessonEmbed({
       );
     case "google_docs":
       return <GoogleDocsEmbed embedId={embedId ?? null} />;
+    default:
+      return <div>Unsupported content type</div>;
   }
 }
