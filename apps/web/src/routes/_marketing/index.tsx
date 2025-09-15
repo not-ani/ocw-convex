@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { HeroSection } from "@/components/hero";
 
-export const Route = createFileRoute("/(marketing)/")({
+export const Route = createFileRoute("/_marketing/")({
   component: HomeComponent,
 });
 

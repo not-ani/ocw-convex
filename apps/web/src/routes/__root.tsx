@@ -17,11 +17,12 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
   head: () => ({
     meta: [
       {
-        title: "ocw-convex",
+        title: "Cherry Creek OpenCourseWare",
       },
       {
         name: "description",
-        content: "ocw-convex is a web application",
+        content:
+          "Cherry Creek OpenCourseWare is a platform dedicated to bridging socioeconomic gaps in education.",
       },
     ],
     links: [
@@ -43,12 +44,14 @@ function RootComponent() {
       <HeadContent />
       <ThemeProvider
         attribute="class"
-        defaultTheme="dark"
+        defaultTheme="light"
         disableTransitionOnChange
         storageKey="vite-ui-theme"
       >
-        <div className="grid h-svh grid-rows-[auto_1fr]">
-          {isFetching ? <Loader /> : <Outlet />}
+        <div className="flex flex-col px-10">
+          <div className="grid h-svh grid-rows-[auto_1fr]">
+            {isFetching ? <Loader /> : <Outlet />}
+          </div>
         </div>
         <Toaster richColors />
       </ThemeProvider>

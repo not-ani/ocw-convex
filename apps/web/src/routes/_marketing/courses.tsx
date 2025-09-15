@@ -6,11 +6,11 @@ import { useQuery } from "convex/react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 
-export const Route = createFileRoute("/courses")({
+export const Route = createFileRoute("/_marketing/courses")({
   component: RouteComponent,
 });
 
-const COURSES_PER_PAGE = 10;
+const COURSES_PER_PAGE = 12;
 
 function RouteComponent() {
   const [currentPage, setCurrentPage] = useState(1);
@@ -142,33 +142,17 @@ function RouteComponent() {
   return (
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="mb-4 font-bold text-3xl text-foreground">
-            Browse Courses
-          </h1>
-          <p className="text-muted-foreground">
-            Discover {totalCourses} courses across various subjects
-          </p>
-        </div>
-
         {/* Search */}
         <div className="mb-8">
           <form className="max-w-md" onSubmit={handleSearch}>
             <div className="flex">
               <input
-                className="flex-1 rounded-l-md border border-input bg-background px-4 py-2 outline-none focus:border-primary focus:ring-2 focus:ring-ring"
+                className="flex-1 border border-input bg-background px-4 py-2 outline-none focus:border-primary focus:ring-2 focus:ring-ring"
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search courses..."
                 type="text"
                 value={searchQuery}
               />
-              <button
-                className="rounded-r-md bg-primary px-6 py-2 text-primary-foreground hover:bg-primary/90 focus:ring-2 focus:ring-ring focus:ring-offset-2"
-                type="submit"
-              >
-                Search
-              </button>
             </div>
           </form>
         </div>

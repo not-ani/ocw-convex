@@ -11,12 +11,13 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TodosRouteImport } from './routes/todos'
 import { Route as DashboardRouteImport } from './routes/dashboard'
-import { Route as CoursesRouteImport } from './routes/courses'
-import { Route as ContributorsRouteImport } from './routes/contributors'
-import { Route as ContributeRouteImport } from './routes/contribute'
-import { Route as ContactRouteImport } from './routes/contact'
-import { Route as AboutRouteImport } from './routes/about'
-import { Route as marketingIndexRouteImport } from './routes/(marketing)/index'
+import { Route as MarketingRouteImport } from './routes/_marketing'
+import { Route as MarketingIndexRouteImport } from './routes/_marketing/index'
+import { Route as MarketingCoursesRouteImport } from './routes/_marketing/courses'
+import { Route as MarketingContributorsRouteImport } from './routes/_marketing/contributors'
+import { Route as MarketingContributeRouteImport } from './routes/_marketing/contribute'
+import { Route as MarketingContactRouteImport } from './routes/_marketing/contact'
+import { Route as MarketingAboutRouteImport } from './routes/_marketing/about'
 import { Route as CourseIdIndexRouteImport } from './routes/course/$id/index'
 import { Route as CourseIdDashboardRouteImport } from './routes/course/$id/dashboard'
 import { Route as CourseIdUnitIdIndexRouteImport } from './routes/course/$id/$unitId/index'
@@ -32,35 +33,39 @@ const DashboardRoute = DashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CoursesRoute = CoursesRouteImport.update({
+const MarketingRoute = MarketingRouteImport.update({
+  id: '/_marketing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MarketingIndexRoute = MarketingIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => MarketingRoute,
+} as any)
+const MarketingCoursesRoute = MarketingCoursesRouteImport.update({
   id: '/courses',
   path: '/courses',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => MarketingRoute,
 } as any)
-const ContributorsRoute = ContributorsRouteImport.update({
+const MarketingContributorsRoute = MarketingContributorsRouteImport.update({
   id: '/contributors',
   path: '/contributors',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => MarketingRoute,
 } as any)
-const ContributeRoute = ContributeRouteImport.update({
+const MarketingContributeRoute = MarketingContributeRouteImport.update({
   id: '/contribute',
   path: '/contribute',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => MarketingRoute,
 } as any)
-const ContactRoute = ContactRouteImport.update({
+const MarketingContactRoute = MarketingContactRouteImport.update({
   id: '/contact',
   path: '/contact',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => MarketingRoute,
 } as any)
-const AboutRoute = AboutRouteImport.update({
+const MarketingAboutRoute = MarketingAboutRouteImport.update({
   id: '/about',
   path: '/about',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const marketingIndexRoute = marketingIndexRouteImport.update({
-  id: '/(marketing)/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => MarketingRoute,
 } as any)
 const CourseIdIndexRoute = CourseIdIndexRouteImport.update({
   id: '/course/$id/',
@@ -85,28 +90,28 @@ const CourseIdUnitIdLessonIdIndexRoute =
   } as any)
 
 export interface FileRoutesByFullPath {
-  '/about': typeof AboutRoute
-  '/contact': typeof ContactRoute
-  '/contribute': typeof ContributeRoute
-  '/contributors': typeof ContributorsRoute
-  '/courses': typeof CoursesRoute
   '/dashboard': typeof DashboardRoute
   '/todos': typeof TodosRoute
-  '/': typeof marketingIndexRoute
+  '/about': typeof MarketingAboutRoute
+  '/contact': typeof MarketingContactRoute
+  '/contribute': typeof MarketingContributeRoute
+  '/contributors': typeof MarketingContributorsRoute
+  '/courses': typeof MarketingCoursesRoute
+  '/': typeof MarketingIndexRoute
   '/course/$id/dashboard': typeof CourseIdDashboardRoute
   '/course/$id': typeof CourseIdIndexRoute
   '/course/$id/$unitId': typeof CourseIdUnitIdIndexRoute
   '/course/$id/$unitId/$lessonId': typeof CourseIdUnitIdLessonIdIndexRoute
 }
 export interface FileRoutesByTo {
-  '/about': typeof AboutRoute
-  '/contact': typeof ContactRoute
-  '/contribute': typeof ContributeRoute
-  '/contributors': typeof ContributorsRoute
-  '/courses': typeof CoursesRoute
   '/dashboard': typeof DashboardRoute
   '/todos': typeof TodosRoute
-  '/': typeof marketingIndexRoute
+  '/about': typeof MarketingAboutRoute
+  '/contact': typeof MarketingContactRoute
+  '/contribute': typeof MarketingContributeRoute
+  '/contributors': typeof MarketingContributorsRoute
+  '/courses': typeof MarketingCoursesRoute
+  '/': typeof MarketingIndexRoute
   '/course/$id/dashboard': typeof CourseIdDashboardRoute
   '/course/$id': typeof CourseIdIndexRoute
   '/course/$id/$unitId': typeof CourseIdUnitIdIndexRoute
@@ -114,14 +119,15 @@ export interface FileRoutesByTo {
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/about': typeof AboutRoute
-  '/contact': typeof ContactRoute
-  '/contribute': typeof ContributeRoute
-  '/contributors': typeof ContributorsRoute
-  '/courses': typeof CoursesRoute
+  '/_marketing': typeof MarketingRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/todos': typeof TodosRoute
-  '/(marketing)/': typeof marketingIndexRoute
+  '/_marketing/about': typeof MarketingAboutRoute
+  '/_marketing/contact': typeof MarketingContactRoute
+  '/_marketing/contribute': typeof MarketingContributeRoute
+  '/_marketing/contributors': typeof MarketingContributorsRoute
+  '/_marketing/courses': typeof MarketingCoursesRoute
+  '/_marketing/': typeof MarketingIndexRoute
   '/course/$id/dashboard': typeof CourseIdDashboardRoute
   '/course/$id/': typeof CourseIdIndexRoute
   '/course/$id/$unitId/': typeof CourseIdUnitIdIndexRoute
@@ -130,13 +136,13 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/dashboard'
+    | '/todos'
     | '/about'
     | '/contact'
     | '/contribute'
     | '/contributors'
     | '/courses'
-    | '/dashboard'
-    | '/todos'
     | '/'
     | '/course/$id/dashboard'
     | '/course/$id'
@@ -144,13 +150,13 @@ export interface FileRouteTypes {
     | '/course/$id/$unitId/$lessonId'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/dashboard'
+    | '/todos'
     | '/about'
     | '/contact'
     | '/contribute'
     | '/contributors'
     | '/courses'
-    | '/dashboard'
-    | '/todos'
     | '/'
     | '/course/$id/dashboard'
     | '/course/$id'
@@ -158,14 +164,15 @@ export interface FileRouteTypes {
     | '/course/$id/$unitId/$lessonId'
   id:
     | '__root__'
-    | '/about'
-    | '/contact'
-    | '/contribute'
-    | '/contributors'
-    | '/courses'
+    | '/_marketing'
     | '/dashboard'
     | '/todos'
-    | '/(marketing)/'
+    | '/_marketing/about'
+    | '/_marketing/contact'
+    | '/_marketing/contribute'
+    | '/_marketing/contributors'
+    | '/_marketing/courses'
+    | '/_marketing/'
     | '/course/$id/dashboard'
     | '/course/$id/'
     | '/course/$id/$unitId/'
@@ -173,14 +180,9 @@ export interface FileRouteTypes {
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  AboutRoute: typeof AboutRoute
-  ContactRoute: typeof ContactRoute
-  ContributeRoute: typeof ContributeRoute
-  ContributorsRoute: typeof ContributorsRoute
-  CoursesRoute: typeof CoursesRoute
+  MarketingRoute: typeof MarketingRouteWithChildren
   DashboardRoute: typeof DashboardRoute
   TodosRoute: typeof TodosRoute
-  marketingIndexRoute: typeof marketingIndexRoute
   CourseIdDashboardRoute: typeof CourseIdDashboardRoute
   CourseIdIndexRoute: typeof CourseIdIndexRoute
   CourseIdUnitIdIndexRoute: typeof CourseIdUnitIdIndexRoute
@@ -203,47 +205,54 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/courses': {
-      id: '/courses'
-      path: '/courses'
-      fullPath: '/courses'
-      preLoaderRoute: typeof CoursesRouteImport
+    '/_marketing': {
+      id: '/_marketing'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof MarketingRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/contributors': {
-      id: '/contributors'
-      path: '/contributors'
-      fullPath: '/contributors'
-      preLoaderRoute: typeof ContributorsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/contribute': {
-      id: '/contribute'
-      path: '/contribute'
-      fullPath: '/contribute'
-      preLoaderRoute: typeof ContributeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/contact': {
-      id: '/contact'
-      path: '/contact'
-      fullPath: '/contact'
-      preLoaderRoute: typeof ContactRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/about': {
-      id: '/about'
-      path: '/about'
-      fullPath: '/about'
-      preLoaderRoute: typeof AboutRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/(marketing)/': {
-      id: '/(marketing)/'
+    '/_marketing/': {
+      id: '/_marketing/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof marketingIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof MarketingIndexRouteImport
+      parentRoute: typeof MarketingRoute
+    }
+    '/_marketing/courses': {
+      id: '/_marketing/courses'
+      path: '/courses'
+      fullPath: '/courses'
+      preLoaderRoute: typeof MarketingCoursesRouteImport
+      parentRoute: typeof MarketingRoute
+    }
+    '/_marketing/contributors': {
+      id: '/_marketing/contributors'
+      path: '/contributors'
+      fullPath: '/contributors'
+      preLoaderRoute: typeof MarketingContributorsRouteImport
+      parentRoute: typeof MarketingRoute
+    }
+    '/_marketing/contribute': {
+      id: '/_marketing/contribute'
+      path: '/contribute'
+      fullPath: '/contribute'
+      preLoaderRoute: typeof MarketingContributeRouteImport
+      parentRoute: typeof MarketingRoute
+    }
+    '/_marketing/contact': {
+      id: '/_marketing/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof MarketingContactRouteImport
+      parentRoute: typeof MarketingRoute
+    }
+    '/_marketing/about': {
+      id: '/_marketing/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof MarketingAboutRouteImport
+      parentRoute: typeof MarketingRoute
     }
     '/course/$id/': {
       id: '/course/$id/'
@@ -276,15 +285,32 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface MarketingRouteChildren {
+  MarketingAboutRoute: typeof MarketingAboutRoute
+  MarketingContactRoute: typeof MarketingContactRoute
+  MarketingContributeRoute: typeof MarketingContributeRoute
+  MarketingContributorsRoute: typeof MarketingContributorsRoute
+  MarketingCoursesRoute: typeof MarketingCoursesRoute
+  MarketingIndexRoute: typeof MarketingIndexRoute
+}
+
+const MarketingRouteChildren: MarketingRouteChildren = {
+  MarketingAboutRoute: MarketingAboutRoute,
+  MarketingContactRoute: MarketingContactRoute,
+  MarketingContributeRoute: MarketingContributeRoute,
+  MarketingContributorsRoute: MarketingContributorsRoute,
+  MarketingCoursesRoute: MarketingCoursesRoute,
+  MarketingIndexRoute: MarketingIndexRoute,
+}
+
+const MarketingRouteWithChildren = MarketingRoute._addFileChildren(
+  MarketingRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
-  AboutRoute: AboutRoute,
-  ContactRoute: ContactRoute,
-  ContributeRoute: ContributeRoute,
-  ContributorsRoute: ContributorsRoute,
-  CoursesRoute: CoursesRoute,
+  MarketingRoute: MarketingRouteWithChildren,
   DashboardRoute: DashboardRoute,
   TodosRoute: TodosRoute,
-  marketingIndexRoute: marketingIndexRoute,
   CourseIdDashboardRoute: CourseIdDashboardRoute,
   CourseIdIndexRoute: CourseIdIndexRoute,
   CourseIdUnitIdIndexRoute: CourseIdUnitIdIndexRoute,

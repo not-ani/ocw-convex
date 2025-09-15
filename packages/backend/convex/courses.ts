@@ -88,7 +88,7 @@ export const getCourseWithUnitsAndLessons = query({
       })
     );
 
-    return { ...course, units: unitsWithLessons };
+    return { ...course, _id: course._id, units: unitsWithLessons };
   },
 });
 
@@ -105,7 +105,12 @@ export const getDashboardSummary = query({
       )
       .unique();
 
-    if (!(membership && (membership.role === "admin" || membership.role === "editor"))) {
+    if (
+      !(
+        membership &&
+        (membership.role === "admin" || membership.role === "editor")
+      )
+    ) {
       return null;
     }
 
@@ -132,7 +137,11 @@ export const getDashboardSummary = query({
       .take(10);
 
     return {
-      course: { id: course._id, name: course.name, description: course.description },
+      course: {
+        id: course._id,
+        name: course.name,
+        description: course.description,
+      },
       counts: {
         units: units.length,
         lessons: lessons.length,
@@ -146,5 +155,63 @@ export const getDashboardSummary = query({
         userId: l.userId,
       })),
     } as const;
+  },
+});
+
+export const getSidebarData = query({
+  args: { courseId: v.id("courses") },
+  handler: async (ctx, args) => {
+    const course = await ctx.db.get(args.courseId);
+    if (!course) {
+      return [];
+    }
+
+    const units = await ctx.db
+      .query("units")
+      .withIndex("by_course_and_order", (q) => q.eq("courseId", args.courseId))
+      .filter((q) => q.eq(q.field("isPublished"), true))
+      .collect();
+
+    const result = await Promise.all(
+      units.map(async (unit) => {
+        const lessons = await ctx.db
+          .query("lessons")
+          .withIndex("by_unit_and_order", (q) => q.eq("unitId", unit._id))
+          .filter((q) => q.eq(q.field("isPublished"), true))
+          .collect();
+
+        const lessonsWithEmbeds = await Promise.all(
+          lessons.map(async (lesson) => {
+            const embeds = await ctx.db
+              .query("lessonEmbeds")
+              .withIndex("by_lesson_id", (q) => q.eq("lessonId", lesson._id))
+              .unique();
+
+            return {
+              id: lesson._id,
+              pureLink: lesson.pureLink,
+              name: lesson.name,
+              contentType: lesson.contentType,
+              unitId: lesson.unitId,
+              embeds,
+            };
+          })
+        );
+
+        return {
+          id: unit._id,
+          order: unit.order,
+          name: unit.name,
+          courseId: unit.courseId,
+          course: {
+            name: course.name,
+            subjectId: course.subjectId,
+          },
+          lessons: lessonsWithEmbeds,
+        };
+      })
+    );
+
+    return result;
   },
 });

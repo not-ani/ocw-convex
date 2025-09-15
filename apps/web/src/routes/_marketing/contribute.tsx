@@ -26,7 +26,7 @@ import {
 } from "lucide-react";
 import { Suspense } from "react";
 
-export const Route = createFileRoute("/contribute")({
+export const Route = createFileRoute("/_marketing/contribute")({
   component: RouteComponent,
 });
 
