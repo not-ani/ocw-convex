@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TodosRouteImport } from './routes/todos'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as MarketingRouteImport } from './routes/_marketing'
 import { Route as MarketingIndexRouteImport } from './routes/_marketing/index'
 import { Route as MarketingCoursesRouteImport } from './routes/_marketing/courses'
@@ -31,6 +32,11 @@ const TodosRoute = TodosRouteImport.update({
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MarketingRoute = MarketingRouteImport.update({
@@ -90,6 +96,7 @@ const CourseIdUnitIdLessonIdIndexRoute =
   } as any)
 
 export interface FileRoutesByFullPath {
+  '/admin': typeof AdminRoute
   '/dashboard': typeof DashboardRoute
   '/todos': typeof TodosRoute
   '/about': typeof MarketingAboutRoute
@@ -104,6 +111,7 @@ export interface FileRoutesByFullPath {
   '/course/$id/$unitId/$lessonId': typeof CourseIdUnitIdLessonIdIndexRoute
 }
 export interface FileRoutesByTo {
+  '/admin': typeof AdminRoute
   '/dashboard': typeof DashboardRoute
   '/todos': typeof TodosRoute
   '/about': typeof MarketingAboutRoute
@@ -120,6 +128,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_marketing': typeof MarketingRouteWithChildren
+  '/admin': typeof AdminRoute
   '/dashboard': typeof DashboardRoute
   '/todos': typeof TodosRoute
   '/_marketing/about': typeof MarketingAboutRoute
@@ -136,6 +145,7 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/admin'
     | '/dashboard'
     | '/todos'
     | '/about'
@@ -150,6 +160,7 @@ export interface FileRouteTypes {
     | '/course/$id/$unitId/$lessonId'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/admin'
     | '/dashboard'
     | '/todos'
     | '/about'
@@ -165,6 +176,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/_marketing'
+    | '/admin'
     | '/dashboard'
     | '/todos'
     | '/_marketing/about'
@@ -181,6 +193,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   MarketingRoute: typeof MarketingRouteWithChildren
+  AdminRoute: typeof AdminRoute
   DashboardRoute: typeof DashboardRoute
   TodosRoute: typeof TodosRoute
   CourseIdDashboardRoute: typeof CourseIdDashboardRoute
@@ -203,6 +216,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_marketing': {
@@ -309,6 +329,7 @@ const MarketingRouteWithChildren = MarketingRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   MarketingRoute: MarketingRouteWithChildren,
+  AdminRoute: AdminRoute,
   DashboardRoute: DashboardRoute,
   TodosRoute: TodosRoute,
   CourseIdDashboardRoute: CourseIdDashboardRoute,

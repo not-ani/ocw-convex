@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { query } from "./_generated/server";
+import { query, mutation } from "./_generated/server";
 
 export const getPaginatedCourses = query({
   args: {
@@ -93,9 +93,12 @@ export const getCourseWithUnitsAndLessons = query({
 });
 
 export const getDashboardSummary = query({
-  args: { courseId: v.id("courses") },
+  args: { courseId: v.id("courses"), userRole: v.optional(v.string()) },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
+
+    const userRole = args.userRole;
+
     if (!identity) return null;
 
     const membership = await ctx.db
@@ -105,18 +108,22 @@ export const getDashboardSummary = query({
       )
       .unique();
 
-    if (
-      !(
-        membership &&
-        (membership.role === "admin" || membership.role === "editor")
-      )
-    ) {
+    const isMembershipAllowed =
+      membership &&
+      (membership.role === "admin" || membership.role === "editor");
+
+    const isUserRoleAllowed =
+      !userRole || userRole === "admin" || userRole === "editor";
+
+    if (!isMembershipAllowed || !isUserRoleAllowed) {
       return null;
     }
 
     const course = await ctx.db.get(args.courseId);
+
     if (!course) return null;
 
+    console.log(course);
     const units = await ctx.db
       .query("units")
       .withIndex("by_course_id", (q) => q.eq("courseId", course._id))
@@ -213,5 +220,36 @@ export const getSidebarData = query({
     );
 
     return result;
+  },
+});
+
+export const normalizeUnitLengths = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const courses = await ctx.db.query("courses").collect();
+
+    const updates = await Promise.all(
+      courses.map(async (course) => {
+        const unitCount = await ctx.db
+          .query("units")
+          .withIndex("by_course_id", (q) => q.eq("courseId", course._id))
+          .collect()
+          .then((units) => units.length);
+
+        await ctx.db.patch(course._id, { unitLength: unitCount });
+
+        return {
+          courseId: course._id,
+          courseName: course.name,
+          oldUnitLength: course.unitLength,
+          newUnitLength: unitCount,
+        };
+      })
+    );
+
+    return {
+      message: "Unit lengths normalized successfully",
+      updates,
+    };
   },
 });
