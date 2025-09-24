@@ -1,7 +1,7 @@
 import { api } from "@ocw-convex/backend/convex/_generated/api";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "convex/react";
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import CourseCard from "@/components/courses/course-card";
 import Pagination from "@/components/courses/pagination";
 import SearchBar from "@/components/courses/search-bar";
@@ -57,9 +57,9 @@ function CoursesPage() {
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-8">
           <SearchBar
-            value={searchInput}
             onChange={handleSearchChange}
             onSubmit={() => setCurrentPage(1)}
+            value={searchInput}
           />
         </div>
 
@@ -75,7 +75,7 @@ function CoursesPage() {
           <div>
             <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {courses.map((course) => (
-                <CourseCard key={course._id} course={course} />
+                <CourseCard course={course} key={course._id} />
               ))}
             </div>
 
@@ -83,8 +83,8 @@ function CoursesPage() {
               <div className="flex flex-col items-center space-y-4">
                 <Pagination
                   currentPage={currentPage}
-                  totalPages={totalPages}
                   onPageChange={goToPage}
+                  totalPages={totalPages}
                 />
                 <p className="text-muted-foreground text-sm">
                   Showing page {currentPage} of {totalPages} ({totalCourses}{" "}

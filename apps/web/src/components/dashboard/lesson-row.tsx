@@ -1,8 +1,8 @@
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { useState, useCallback } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { useCallback, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 export function LessonRow({
   lesson,
@@ -38,11 +38,11 @@ export function LessonRow({
 
   return (
     <div
-      ref={setNodeRef}
-      style={style}
       className={`flex items-center justify-between gap-2 py-1 ${
         isDragging ? "opacity-80" : ""
       }`}
+      ref={setNodeRef}
+      style={style}
     >
       <div className="flex items-center gap-3 py-2">
         <div className="size-2 rounded-full bg-muted" />
@@ -56,21 +56,21 @@ export function LessonRow({
 
       <div className="flex items-center gap-2">
         <Input
-          placeholder="Paste iframe or URL"
           className="w-72"
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
           onBlur={handleBlur}
+          onChange={(e) => setDraft(e.target.value)}
+          placeholder="Paste iframe or URL"
+          value={draft}
         />
         <Button
+          onClick={onTogglePublish}
           type="button"
           variant={lesson.isPublished ? "secondary" : "outline"}
-          onClick={onTogglePublish}
         >
           {lesson.isPublished ? "Unpublish" : "Publish"}
         </Button>
 
-        <Button type="button" variant="destructive" onClick={onDelete}>
+        <Button onClick={onDelete} type="button" variant="destructive">
           Delete
         </Button>
       </div>

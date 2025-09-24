@@ -6,12 +6,12 @@ export const Route = createFileRoute("/_marketing/about")({
 
 function RouteComponent() {
   return (
-    <div className="bg-background min-h-screen px-4 py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-background px-4 py-12 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-4xl">
-        <h1 className="text-foreground mb-8 text-center text-3xl font-bold tracking-tight">
+        <h1 className="mb-8 text-center font-bold text-3xl text-foreground tracking-tight">
           About Us
         </h1>
-        <div className="text-foreground space-y-6">
+        <div className="space-y-6 text-foreground">
           <p className="leading-relaxed">
             Creek OpenCourseWare (OCW) is dedicated to providing free,
             high-quality resources to students at Cherry Creek High School. Our
@@ -27,7 +27,7 @@ function RouteComponent() {
             the level of our understanding.
           </p>
           <br />
-          <h1 className="mb-8 text-center text-3xl font-bold tracking-tight">
+          <h1 className="mb-8 text-center font-bold text-3xl tracking-tight">
             Our Mission
           </h1>
           <p className="leading-relaxed">
@@ -40,8 +40,8 @@ function RouteComponent() {
             If you have any questions or would like to learn more about our
             platform, please feel free to{" "}
             <Link
-              to="/contact"
               className="text-blue-600 hover:text-blue-800 hover:underline"
+              to="/contact"
             >
               contact us
             </Link>

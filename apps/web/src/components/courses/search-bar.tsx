@@ -20,19 +20,19 @@ function SearchBar({
       }}
       role="search"
     >
-      <label htmlFor="courses-search" className="sr-only">
+      <label className="sr-only" htmlFor="courses-search">
         Search courses
       </label>
       <div className="flex">
         <input
-          id="courses-search"
+          aria-label="Search courses"
+          autoComplete="off"
           className="flex-1 border border-input bg-background px-4 py-2 outline-none focus:border-primary focus:ring-2 focus:ring-ring"
+          id="courses-search"
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
           type="search"
           value={value}
-          autoComplete="off"
-          aria-label="Search courses"
         />
       </div>
     </form>

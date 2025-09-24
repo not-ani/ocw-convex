@@ -1,10 +1,10 @@
 "use client";
 
+import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
-import { Badge } from "../ui/badge";
-import { motion, AnimatePresence } from "framer-motion";
-import { ScrollArea } from "../ui/scroll-area";
 import Link from "next/link";
+import { Badge } from "../ui/badge";
+import { ScrollArea } from "../ui/scroll-area";
 import { useExplore } from "./context";
 
 interface Course {
@@ -197,10 +197,10 @@ function ExploreContent() {
   return (
     <>
       <motion.button
-        onClick={() => setIsOpen(!isOpen)}
-        className="text-primary hover:bg-primary/10 flex w-max flex-row items-center justify-center gap-2 rounded-md p-2 text-sm font-medium"
         aria-expanded={isOpen}
         aria-label="Toggle course navigation"
+        className="flex w-max flex-row items-center justify-center gap-2 rounded-md p-2 font-medium text-primary text-sm hover:bg-primary/10"
+        onClick={() => setIsOpen(!isOpen)}
       >
         Explore
         <motion.div
@@ -214,18 +214,18 @@ function ExploreContent() {
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial="closed"
             animate="open"
+            className={`fixed inset-0 z-40 h-screen bg-background ${isMobile ? "overflow-y-auto" : ""}`}
             exit="closed"
-            variants={containerVariants}
-            className={`bg-background fixed inset-0 z-40 h-screen ${isMobile ? "overflow-y-auto" : ""}`}
+            initial="closed"
             style={{ top: isMobile ? "0" : "64px" }}
+            variants={containerVariants}
           >
             {isMobile && (
-              <div className="bg-background sticky top-0 z-50 border-b">
+              <div className="sticky top-0 z-50 border-b bg-background">
                 <button
+                  className="font-medium text-muted-foreground text-sm"
                   onClick={() => setIsOpen(false)}
-                  className="text-muted-foreground text-sm font-medium"
                 >
                   Close
                 </button>
@@ -234,17 +234,17 @@ function ExploreContent() {
             <ScrollArea
               className={isMobile ? "h-full" : "h-[calc(100vh-64px)]"}
             >
-              <div className="bg-background h-full w-full p-6 md:p-20">
+              <div className="h-full w-full bg-background p-6 md:p-20">
                 <div className="grid h-full grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                   {navigationData.map((section) => (
-                    <div key={section.title} className="space-y-4">
-                      <h3 className="text-muted-foreground text-sm font-bold">
+                    <div className="space-y-4" key={section.title}>
+                      <h3 className="font-bold text-muted-foreground text-sm">
                         {section.title}
                       </h3>
                       {section.categories.map((category) => (
-                        <div key={category.name} className="space-y-2">
+                        <div className="space-y-2" key={category.name}>
                           {category.name !== section.title && (
-                            <h4 className="text-sm font-medium">
+                            <h4 className="font-medium text-sm">
                               {category.name}
                             </h4>
                           )}
@@ -255,10 +255,10 @@ function ExploreContent() {
                                 whileHover={{ scale: 1.003 }}
                               >
                                 <Link
-                                  prefetch
+                                  className="group flex items-center text-foreground/70 text-sm hover:text-primary"
                                   href={course.link}
-                                  className="group text-foreground/70 hover:text-primary flex items-center text-sm"
                                   onClick={() => setIsOpen(false)}
+                                  prefetch
                                 >
                                   <span className="flex-1">{course.name}</span>
                                   <div className="flex items-center gap-2">

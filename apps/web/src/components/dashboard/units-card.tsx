@@ -1,20 +1,21 @@
+import {
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import type { Id } from "@ocw-convex/backend/convex/_generated/dataModel";
+import { GripVertical } from "lucide-react";
+import { useCallback, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
-  CardDescription,
 } from "@/components/ui/card";
-import {
-  SortableContext,
-  verticalListSortingStrategy,
-  useSortable,
-} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-import { useCallback, useMemo, useState } from "react";
-import type { Id } from "@ocw-convex/backend/convex/_generated/dataModel";
+import { Input } from "@/components/ui/input";
 
 type Unit = { id: Id<"units"> | string; name: string; isPublished: boolean };
 
@@ -42,7 +43,9 @@ export function UnitsCard({
 
   const handleAdd = useCallback(async () => {
     const name = newUnitName.trim();
-    if (!name) return;
+    if (!name) {
+      return;
+    }
     await onCreateUnit(name);
     setNewUnitName("");
   }, [newUnitName, onCreateUnit]);
@@ -59,12 +62,12 @@ export function UnitsCard({
 
         <div className="flex gap-2">
           <Input
+            className="w-56"
+            onChange={(e) => setNewUnitName(e.target.value)}
             placeholder="New unit name"
             value={newUnitName}
-            onChange={(e) => setNewUnitName(e.target.value)}
-            className="w-56"
           />
-          <Button type="button" onClick={handleAdd}>
+          <Button onClick={handleAdd} type="button">
             Add unit
           </Button>
         </div>
@@ -72,12 +75,12 @@ export function UnitsCard({
 
       <CardContent>
         <SortableContext items={unitIds} strategy={verticalListSortingStrategy}>
-          <div className="divide-border divide-y">
-            {units.map((u, i) => (
+          <ul className="divide-y divide-border">
+            {units.map((u) => (
               <UnitItem
-                key={String(u.id)}
-                unit={u}
                 isSelected={String(selectedUnitId) === String(u.id)}
+                key={String(u.id)}
+                onDelete={() => onDeleteUnit(u.id as Id<"units">)}
                 onSelect={() => onSelectUnit(u.id as Id<"units">)}
                 onTogglePublish={() =>
                   onTogglePublish({
@@ -85,10 +88,10 @@ export function UnitsCard({
                     data: { isPublished: !u.isPublished },
                   })
                 }
-                onDelete={() => onDeleteUnit(u.id as Id<"units">)}
+                unit={u}
               />
             ))}
-          </div>
+          </ul>
         </SortableContext>
       </CardContent>
     </Card>
@@ -108,7 +111,15 @@ function UnitItem({
   onTogglePublish: () => void;
   onDelete: () => void;
 }) {
-  const { transform, transition, setNodeRef, isDragging } = useSortable({
+  const {
+    attributes,
+    listeners,
+    setActivatorNodeRef,
+    transform,
+    transition,
+    setNodeRef,
+    isDragging,
+  } = useSortable({
     id: String(unit.id),
   });
 
@@ -118,49 +129,70 @@ function UnitItem({
   } as React.CSSProperties;
 
   return (
-    <div
-      ref={setNodeRef}
-      style={style}
+    <li
       className={`flex items-center justify-between py-2 ${
         isDragging ? "opacity-80" : ""
       }`}
-      role="listitem"
-      aria-selected={isSelected}
-      onClick={onSelect}
+      ref={setNodeRef}
+      style={style}
     >
-      <div className="flex items-center gap-3">
-        <div className="size-2 rounded-full bg-muted" />
-        <div className="flex-1">
-          <div className="font-medium">{unit.name}</div>
-          <div className="text-muted-foreground text-xs">
-            {unit.isPublished ? "Published" : "Draft"}
-          </div>
+      <div className="flex w-full items-center justify-between">
+        <div className="flex items-center gap-3">
+          <button
+            aria-label="Drag to reorder unit"
+            className="inline-flex h-8 w-8 cursor-grab items-center justify-center rounded-md hover:bg-accent focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 active:cursor-grabbing"
+            onClick={(e) => e.stopPropagation()}
+            ref={setActivatorNodeRef}
+            type="button"
+            {...attributes}
+            {...listeners}
+          >
+            <GripVertical className="h-4 w-4 text-muted-foreground" />
+          </button>
+          <div className="size-2 rounded-full bg-muted" />
+          <button
+            aria-pressed={isSelected}
+            className="flex-1 text-left"
+            onClick={onSelect}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onSelect();
+              }
+            }}
+            type="button"
+          >
+            <div className="font-medium">{unit.name}</div>
+            <div className="text-muted-foreground text-xs">
+              {unit.isPublished ? "Published" : "Draft"}
+            </div>
+          </button>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Button
+            onClick={(e) => {
+              e.stopPropagation();
+              onTogglePublish();
+            }}
+            type="button"
+            variant={unit.isPublished ? "secondary" : "outline"}
+          >
+            {unit.isPublished ? "Unpublish" : "Publish"}
+          </Button>
+
+          <Button
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete();
+            }}
+            type="button"
+            variant="destructive"
+          >
+            Delete
+          </Button>
         </div>
       </div>
-
-      <div className="flex items-center gap-2">
-        <Button
-          type="button"
-          variant={unit.isPublished ? "secondary" : "outline"}
-          onClick={(e) => {
-            e.stopPropagation();
-            onTogglePublish();
-          }}
-        >
-          {unit.isPublished ? "Unpublish" : "Publish"}
-        </Button>
-
-        <Button
-          type="button"
-          variant="destructive"
-          onClick={(e) => {
-            e.stopPropagation();
-            onDelete();
-          }}
-        >
-          Delete
-        </Button>
-      </div>
-    </div>
+    </li>
   );
 }

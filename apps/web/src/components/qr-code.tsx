@@ -64,5 +64,5 @@ export default function QRCode({
     void generateQRCode();
   }, [value, size, bgColor, fgColor]);
 
-  return <div ref={qrRef} className="qr-code" />;
+  return <div className="qr-code" ref={qrRef} />;
 }

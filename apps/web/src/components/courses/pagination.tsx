@@ -22,7 +22,7 @@ function Pagination({
     }
 
     let start = Math.max(1, currentPage - Math.floor(maxVisible / 2));
-    let end = Math.min(totalPages, start + maxVisible - 1);
+    const end = Math.min(totalPages, start + maxVisible - 1);
 
     if (end - start + 1 < maxVisible) {
       start = Math.max(1, end - maxVisible + 1);
@@ -57,23 +57,23 @@ function Pagination({
       {pages.map((p, idx) =>
         p === "ellipsis" ? (
           <span
-            key={`el-${idx}`}
-            className="border border-gray-300 bg-background px-3 py-2 font-medium text-gray-500 text-sm"
             aria-hidden
+            className="border border-gray-300 bg-background px-3 py-2 font-medium text-gray-500 text-sm"
+            key={`el-${idx}`}
           >
             ...
           </span>
         ) : (
           <Button
-            key={p}
-            onClick={() => onPageChange(p)}
+            aria-current={p === currentPage ? "page" : undefined}
+            aria-label={`Go to page ${p}`}
             className={`border px-3 py-2 font-medium text-sm ${
               p === currentPage
                 ? "border-blue-500 bg-blue-50 text-blue-600"
                 : "border-gray-300 bg-background text-gray-500 hover:bg-gray-50 hover:text-gray-700"
             }`}
-            aria-current={p === currentPage ? "page" : undefined}
-            aria-label={`Go to page ${p}`}
+            key={p}
+            onClick={() => onPageChange(p)}
           >
             {p}
           </Button>

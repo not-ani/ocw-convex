@@ -1,7 +1,7 @@
 "use client";
 
-import { buttonVariants } from "../ui/button";
 import { Embed } from "../iframe";
+import { buttonVariants } from "../ui/button";
 
 export function QuizletEmbed({
   embedId,
@@ -18,14 +18,14 @@ export function QuizletEmbed({
   return (
     <div className="flex h-screen flex-col">
       <div className="flex flex-row items-center justify-between p-4">
-        <h3 className="text-3xl font-bold">Quizlet (Flashcards)</h3>
+        <h3 className="font-bold text-3xl">Quizlet (Flashcards)</h3>
         <a
-          href={embedId}
-          target="_blank"
-          rel="noopener noreferrer"
           className={buttonVariants({
             variant: "default",
           })}
+          href={embedId}
+          rel="noopener noreferrer"
+          target="_blank"
         >
           Open in new tab
         </a>
@@ -34,7 +34,7 @@ export function QuizletEmbed({
         ) : null}
       </div>
       <div className="grow">
-        <Embed src={url} className="h-full w-full border-0"></Embed>
+        <Embed className="h-full w-full border-0" src={url} />
       </div>
     </div>
   );

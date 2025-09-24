@@ -15,16 +15,16 @@ type Props = {
 function CourseCard({ course }: Props) {
   return (
     <Link
-      to="/course/$id"
-      params={{ id: course._id }}
       className="overflow-hidden rounded-lg bg-card shadow-md transition-shadow duration-200 hover:shadow-lg"
+      params={{ id: course._id }}
+      to="/course/$id"
     >
       {course.imageUrl ? (
         <img
-          src={course.imageUrl}
           alt={course.name}
           className="h-48 w-full object-cover"
           loading="lazy"
+          src={course.imageUrl}
         />
       ) : (
         <div className="flex h-48 w-full items-center justify-center bg-gray-100">

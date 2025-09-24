@@ -1,8 +1,8 @@
 "use client";
+import { Slot } from "@radix-ui/react-slot";
 import React from "react";
 import { cn } from "@/lib/utils";
 import { type ButtonProps, buttonVariants } from "../ui/button";
-import { Slot } from "@radix-ui/react-slot";
 import { useExplore } from "./context";
 
 export const ExploreButton = React.forwardRef<HTMLButtonElement, ButtonProps>(
@@ -18,7 +18,7 @@ export const ExploreButton = React.forwardRef<HTMLButtonElement, ButtonProps>(
         {...props}
       />
     );
-  },
+  }
 );
 
 ExploreButton.displayName = "ExploreButton";

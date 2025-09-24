@@ -7,12 +7,12 @@ export const Route = createFileRoute("/_marketing/contact")({
 function RouteComponent() {
   return (
     <div>
-      <div className="bg-background min-h-screen px-4 py-12 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-background px-4 py-12 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-4xl">
-          <h1 className="text-foreground mb-8 text-center text-3xl font-bold tracking-tight">
+          <h1 className="mb-8 text-center font-bold text-3xl text-foreground tracking-tight">
             Contact Us
           </h1>
-          <div className="text-foreground/90 space-y-6">
+          <div className="space-y-6 text-foreground/90">
             <p className="leading-relaxed">
               If you have any questions or would like to get in touch with us,
               please feel free to contact our team members below or the
@@ -21,19 +21,19 @@ function RouteComponent() {
           </div>
 
           {/* Organization Contact Section */}
-          <div className="mt-16 border-t border-gray-200 pt-8 text-center">
-            <h2 className="text-foreground mb-4 text-2xl font-semibold">
+          <div className="mt-16 border-gray-200 border-t pt-8 text-center">
+            <h2 className="mb-4 font-semibold text-2xl text-foreground">
               Maintained By
             </h2>
-            <p className="text-foreground/90 mx-auto max-w-2xl">
+            <p className="mx-auto max-w-2xl text-foreground/90">
               This OpenCourseWare site is proudly maintained by the Cherry Creek
               High School&apos;s Computer Science Honor Society. For general
               inquiries about the site&apos;s maintenance or the organization,
               please contact:
             </p>
             <a
-              href="mailto:cherrycreekcshs@gmail.com" // <-- REPLACE WITH ACTUAL EMAIL
-              className="mt-4 inline-block text-blue-600 hover:text-blue-800 hover:underline"
+              className="mt-4 inline-block text-blue-600 hover:text-blue-800 hover:underline" // <-- REPLACE WITH ACTUAL EMAIL
+              href="mailto:cherrycreekcshs@gmail.com"
             >
               cherrycreekcshs@gmail.com
             </a>
@@ -44,13 +44,13 @@ function RouteComponent() {
             {/* Aniketh Chenjeri */}
             <div className="flex flex-col items-center text-center">
               <img
-                src="https://ugakd4mkxv.ufs.sh/f/QRXW6mPDvNgcf1bAHpXv5c4nkOatgwsmYj96KRpli3hUEdx1"
                 alt="Aniketh Chenjeri"
-                width={80} // Keep width and height consistent for aspect ratio
-                height={80} // Make height same as width for circle
-                className="mb-4 h-20 w-20 rounded-full object-cover" // Added w-20 and object-cover
+                className="mb-4 h-20 w-20 rounded-full object-cover"
+                height={80} // Keep width and height consistent for aspect ratio
+                src="https://ugakd4mkxv.ufs.sh/f/QRXW6mPDvNgcf1bAHpXv5c4nkOatgwsmYj96KRpli3hUEdx1" // Make height same as width for circle
+                width={80} // Added w-20 and object-cover
               />
-              <h2 className="text-foreground text-xl font-semibold">
+              <h2 className="font-semibold text-foreground text-xl">
                 Aniketh Chenjeri
               </h2>
               <p className="text-foreground/90">
@@ -59,8 +59,8 @@ function RouteComponent() {
                 the content presented on the site.
               </p>
               <a
-                href="mailto:anikethchenjeri@gmail.com"
                 className="mt-4 text-blue-600 hover:text-blue-800 hover:underline"
+                href="mailto:anikethchenjeri@gmail.com"
               >
                 anikethchenjeri@gmail.com
               </a>
@@ -69,13 +69,13 @@ function RouteComponent() {
             {/* Jason Chen */}
             <div className="flex flex-col items-center text-center">
               <img
-                src="https://ugakd4mkxv.ufs.sh/f/QRXW6mPDvNgcBOk5v5CzYZbKVLiWvQ9r1lpMUyjw58osCXnO"
                 alt="Jason Chen"
-                width={80} // Keep width and height consistent for aspect ratio
-                height={80} // Make height same as width for circle
-                className="mb-4 h-20 w-20 rounded-full object-cover" // Corrected classes, added w-20 and object-cover
+                className="mb-4 h-20 w-20 rounded-full object-cover"
+                height={80} // Keep width and height consistent for aspect ratio
+                src="https://ugakd4mkxv.ufs.sh/f/QRXW6mPDvNgcBOk5v5CzYZbKVLiWvQ9r1lpMUyjw58osCXnO" // Make height same as width for circle
+                width={80} // Corrected classes, added w-20 and object-cover
               />
-              <h2 className="text-xl font-semibold text-gray-900">
+              <h2 className="font-semibold text-gray-900 text-xl">
                 Jason Chen
               </h2>
               <p className="text-gray-600">
@@ -83,8 +83,8 @@ function RouteComponent() {
                 and is helping develop the current site.
               </p>
               <a
-                href="mailto:jchen3200@gatech.edu"
                 className="mt-4 text-blue-600 hover:text-blue-800 hover:underline"
+                href="mailto:jchen3200@gatech.edu"
               >
                 jchen3200@gatech.edu
               </a>

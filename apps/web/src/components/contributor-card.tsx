@@ -19,7 +19,7 @@ export default function ContributorCard({
 
   return (
     <div
-      className={`bg-background cursor-pointer overflow-hidden rounded-lg shadow-md transition-all duration-300 ease-in-out ${
+      className={`cursor-pointer overflow-hidden rounded-lg bg-background shadow-md transition-all duration-300 ease-in-out ${
         isExpanded ? "max-h-[500px]" : "h-20"
       }`}
       onClick={handleClick}
@@ -35,16 +35,16 @@ export default function ContributorCard({
           } transition-all duration-300 ease-in-out`}
         >
           <img
-            src={avatar}
             alt={`${name}'s avatar`}
-            sizes={isExpanded ? "100vw" : "40px"}
             className={`object-cover transition-all duration-300 ease-in-out ${
               isExpanded ? "rounded-lg" : "rounded-full"
             }`}
+            sizes={isExpanded ? "100vw" : "40px"}
+            src={avatar}
           />
         </div>
         <div className={`${isExpanded ? "w-full" : "ml-4 grow"} flex flex-col`}>
-          <h2 className="text-lg font-semibold">{name}</h2>
+          <h2 className="font-semibold text-lg">{name}</h2>
           {isExpanded && <p className="mt-2 text-gray-600">{description}</p>}
         </div>
       </div>

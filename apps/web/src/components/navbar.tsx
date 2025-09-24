@@ -1,9 +1,5 @@
-import {
-  Link,
-  useLocation,
-  useRouter,
-  useRouterState,
-} from "@tanstack/react-router";
+import { UserButton } from "@clerk/clerk-react";
+import { Link } from "@tanstack/react-router";
 import { Menu, MoveRight, X } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -60,7 +56,7 @@ function Header1() {
 
   const [isOpen, setOpen] = useState(false);
   return (
-    <header className={`flex bg-background `}>
+    <header className={"flex bg-background"}>
       <div className="flex min-h-20 w-full flex-row items-center justify-evenly gap-4 lg:grid lg:grid-cols-3">
         <div className="hidden flex-row items-center justify-start gap-4 lg:flex">
           <NavigationMenu
@@ -109,7 +105,7 @@ function Header1() {
         </div>
         <div className="flex w-full justify-end gap-4">
           <div className="hidden border-r md:inline" />
-          <Button variant="outline">Sign in</Button>
+          <UserButton />
         </div>
         <div className="flex w-12 shrink items-end justify-end lg:hidden">
           <Button onClick={() => setOpen(!isOpen)} variant="ghost">

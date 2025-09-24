@@ -1,24 +1,24 @@
+import { closestCenter, DndContext } from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { api } from "@ocw-convex/backend/convex/_generated/api";
+import type { Id } from "@ocw-convex/backend/convex/_generated/dataModel";
+import { useQuery } from "convex/react";
+import { useCallback, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
-  CardDescription,
 } from "@/components/ui/card";
-import {
-  SortableContext,
-  arrayMove,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
-import { DndContext, closestCenter } from "@dnd-kit/core";
-import { useCallback, useMemo, useState } from "react";
-import type { Id } from "@ocw-convex/backend/convex/_generated/dataModel";
-import { LessonRow } from "./lesson-row";
+import { Input } from "@/components/ui/input";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
-import { api } from "@ocw-convex/backend/convex/_generated/api";
-import { useQuery } from "convex/react";
+import { LessonRow } from "./lesson-row";
 
 export function LessonsCard({
   selectedUnitId,
@@ -140,18 +140,18 @@ export function LessonsCard({
 
         <div className="flex flex-wrap items-center gap-2">
           <Input
+            className="w-56"
+            onChange={(e) => setNewLessonName(e.target.value)}
             placeholder="New lesson name"
             value={newLessonName}
-            onChange={(e) => setNewLessonName(e.target.value)}
-            className="w-56"
           />
           <Input
+            className="w-72"
+            onChange={(e) => setNewLessonEmbed(e.target.value)}
             placeholder="Optional: iframe or URL"
             value={newLessonEmbed}
-            onChange={(e) => setNewLessonEmbed(e.target.value)}
-            className="w-72"
           />
-          <Button type="button" onClick={handleAdd}>
+          <Button onClick={handleAdd} type="button">
             Add lesson
           </Button>
         </div>
@@ -162,7 +162,7 @@ export function LessonsCard({
           collisionDetection={closestCenter}
           onDragEnd={(e) => {
             const { active, over } = e;
-            if (!active || !over || active.id === over.id) return;
+            if (!(active && over) || active.id === over.id) return;
             const oldIndex = lessonIds.indexOf(String(active.id));
             const newIndex = lessonIds.indexOf(String(over.id));
             handleReorder(oldIndex, newIndex).catch(console.error);
@@ -172,18 +172,18 @@ export function LessonsCard({
             items={lessonIds}
             strategy={verticalListSortingStrategy}
           >
-            <div className="divide-border divide-y">
+            <div className="divide-y divide-border">
               {lessonList.map((l) => (
                 <LessonRow
                   key={String(l.id)}
                   lesson={l}
+                  onDelete={() => onDeleteLesson(l.id as Id<"lessons">)}
                   onTogglePublish={() =>
                     onTogglePublish({
                       id: l.id as Id<"lessons">,
                       isPublished: !l.isPublished,
                     })
                   }
-                  onDelete={() => onDeleteLesson(l.id as Id<"lessons">)}
                   onUpdateEmbed={(raw) =>
                     onUpdateEmbed(l.id as Id<"lessons">, raw)
                   }

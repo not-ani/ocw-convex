@@ -1,3 +1,13 @@
+import { createFileRoute } from "@tanstack/react-router";
+import {
+  Clock,
+  Code,
+  FileEdit,
+  Github,
+  HelpCircle,
+  Paintbrush,
+} from "lucide-react";
+import { Suspense } from "react";
 import QRCode from "@/components/qr-code";
 import {
   Accordion,
@@ -15,16 +25,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { createFileRoute } from "@tanstack/react-router";
-import {
-  Clock,
-  Code,
-  FileEdit,
-  Github,
-  HelpCircle,
-  Paintbrush,
-} from "lucide-react";
-import { Suspense } from "react";
 
 export const Route = createFileRoute("/_marketing/contribute")({
   component: RouteComponent,
@@ -37,7 +37,7 @@ const forms = [
     description:
       "Share your knowledge and expertise by contributing written content to our open courseware platform.",
     url: "https://forms.gle/ALUL2GEsCRv7eifp9",
-    icon: <FileEdit className="text-primary h-8 w-8" />,
+    icon: <FileEdit className="h-8 w-8 text-primary" />,
   },
   {
     id: "design",
@@ -45,7 +45,7 @@ const forms = [
     description:
       "Help improve the visual experience of our platform with your design skills and creative ideas.",
     url: "https://forms.gle/iFUVRvHtKehxVZah7",
-    icon: <Paintbrush className="text-primary h-8 w-8" />,
+    icon: <Paintbrush className="h-8 w-8 text-primary" />,
   },
   {
     id: "develop",
@@ -53,7 +53,7 @@ const forms = [
     description:
       "Contribute to the technical development of our platform with your coding and development expertise.",
     url: "https://forms.gle/g4PBXz5LE3GBYYhT6",
-    icon: <Code className="text-primary h-8 w-8" />,
+    icon: <Code className="h-8 w-8 text-primary" />,
   },
 ];
 
@@ -63,14 +63,14 @@ const meetingTimes = [
     day: "Wednesday",
     time: "After School",
     hours: "3:30 PM - 4:15 PM",
-    icon: <Clock className="text-primary h-8 w-8" />,
+    icon: <Clock className="h-8 w-8 text-primary" />,
   },
   {
     id: "thursday",
     day: "Thursday",
     time: "Before School",
     hours: "7:50 AM - 8:10 AM",
-    icon: <Clock className="text-primary h-8 w-8" />,
+    icon: <Clock className="h-8 w-8 text-primary" />,
   },
 ];
 
@@ -97,20 +97,20 @@ function RouteComponent() {
       <main className="container mx-auto px-4 py-12">
         <div className="space-y-6">
           <div className="space-y-2 text-center">
-            <h1 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
+            <h1 className="font-bold text-3xl tracking-tight sm:text-4xl md:text-5xl">
               Contribute to the Project
             </h1>
-            <p className="text-muted-foreground mx-auto max-w-2xl">
+            <p className="mx-auto max-w-2xl text-muted-foreground">
               Join our community and help us improve the open courseware
               platform. There are several ways you can contribute.
             </p>
           </div>
 
           <section className="py-8">
-            <h2 className="mb-6 text-2xl font-bold">Contribution Forms</h2>
+            <h2 className="mb-6 font-bold text-2xl">Contribution Forms</h2>
             <div className="grid gap-6 md:grid-cols-3">
               {forms.map((form) => (
-                <Card key={form.id} className="flex h-full flex-col">
+                <Card className="flex h-full flex-col" key={form.id}>
                   <CardHeader>
                     <div className="flex items-center gap-3">
                       {form.icon}
@@ -120,10 +120,8 @@ function RouteComponent() {
                   </CardHeader>
                   <CardContent className="grow">
                     <div className="flex justify-center">
-                      <Suspense
-                        fallback={<Skeleton className="h-12 w-12"></Skeleton>}
-                      >
-                        <QRCode value={form.url} size={180} />
+                      <Suspense fallback={<Skeleton className="h-12 w-12" />}>
+                        <QRCode size={180} value={form.url} />
                       </Suspense>
                     </div>
                   </CardContent>
@@ -131,8 +129,8 @@ function RouteComponent() {
                     <Button asChild className="w-full">
                       <a
                         href={form.url}
-                        target="_blank"
                         rel="noopener noreferrer"
+                        target="_blank"
                       >
                         Open Form
                       </a>
@@ -144,10 +142,10 @@ function RouteComponent() {
           </section>
 
           <section className="py-8">
-            <h2 className="mb-6 text-2xl font-bold">Meeting Times</h2>
+            <h2 className="mb-6 font-bold text-2xl">Meeting Times</h2>
             <div className="grid gap-6 md:grid-cols-2">
               {meetingTimes.map((meeting) => (
-                <Card key={meeting.id} className="flex h-full flex-col">
+                <Card className="flex h-full flex-col" key={meeting.id}>
                   <CardHeader>
                     <div className="flex items-center gap-3">
                       {meeting.icon}
@@ -157,7 +155,7 @@ function RouteComponent() {
                   </CardHeader>
                   <CardContent>
                     <div className="flex h-full items-center justify-center">
-                      <p className="text-center text-xl font-semibold">
+                      <p className="text-center font-semibold text-xl">
                         {meeting.hours}
                       </p>
                     </div>
@@ -171,7 +169,7 @@ function RouteComponent() {
             <Card>
               <CardHeader>
                 <div className="flex items-center gap-3">
-                  <Github className="text-primary h-8 w-8" />
+                  <Github className="h-8 w-8 text-primary" />
                   <CardTitle>GitHub Repository</CardTitle>
                 </div>
                 <CardDescription>
@@ -192,11 +190,11 @@ function RouteComponent() {
                 </p>
               </CardContent>
               <CardFooter>
-                <Button asChild variant="outline" className="w-full">
+                <Button asChild className="w-full" variant="outline">
                   <a
                     href="https://github.com/CCHS-Computer-Science-Honors-Society/ocw.git"
-                    target="_blank"
                     rel="noopener noreferrer"
+                    target="_blank"
                   >
                     <Github className="mr-2 h-4 w-4" /> Visit GitHub Repository
                   </a>
@@ -206,18 +204,18 @@ function RouteComponent() {
           </section>
 
           <section className="py-8">
-            <h2 className="mb-6 text-2xl font-bold">
+            <h2 className="mb-6 font-bold text-2xl">
               Frequently Asked Questions
             </h2>
             <Card>
               <CardHeader>
                 <div className="flex items-center gap-3">
-                  <HelpCircle className="text-primary h-8 w-8" />
+                  <HelpCircle className="h-8 w-8 text-primary" />
                   <CardTitle>FAQ</CardTitle>
                 </div>
               </CardHeader>
               <CardContent>
-                <Accordion type="single" collapsible className="w-full">
+                <Accordion className="w-full" collapsible type="single">
                   {faqs.map((faq, index) => (
                     <AccordionItem key={index} value={`item-${index}`}>
                       <AccordionTrigger className="text-left">
@@ -232,7 +230,7 @@ function RouteComponent() {
           </section>
 
           <section className="py-8">
-            <h2 className="mb-6 text-2xl font-bold">Why Contribute?</h2>
+            <h2 className="mb-6 font-bold text-2xl">Why Contribute?</h2>
             <div className="grid gap-6 md:grid-cols-2">
               <Card>
                 <CardHeader>

@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { mutation, MutationCtx, query } from "./_generated/server";
+import { type MutationCtx, mutation, query } from "./_generated/server";
 
 function assertEditorOrAdmin(role: string | null) {
   if (!(role === "admin" || role === "editor")) {
@@ -7,16 +7,13 @@ function assertEditorOrAdmin(role: string | null) {
   }
 }
 
-async function getRequesterRole(
-  ctx: MutationCtx,
-  courseId: string,
-) {
+async function getRequesterRole(ctx: MutationCtx, courseId: string) {
   const identity = await ctx.auth.getUserIdentity();
   if (!identity) return null;
   const membership = await ctx.db
     .query("courseUsers")
     .withIndex("by_course_and_user", (q) =>
-      q.eq("courseId", courseId as any).eq("userId", identity.tokenIdentifier),
+      q.eq("courseId", courseId as any).eq("userId", identity.tokenIdentifier)
     )
     .unique();
   return membership?.role ?? null;
@@ -38,6 +35,14 @@ export const getTableData = query({
       courseId: u.courseId,
       order: u.order,
     }));
+  },
+});
+
+export const getById = query({
+  args: { id: v.id("units") },
+  handler: async (ctx, args) => {
+    const unit = await ctx.db.get(args.id);
+    return unit ?? null;
   },
 });
 
@@ -83,6 +88,7 @@ export const update = mutation({
       id: v.id("units"),
       name: v.optional(v.string()),
       isPublished: v.optional(v.boolean()),
+      description: v.optional(v.union(v.string(), v.null())),
     }),
   },
   handler: async (ctx, args) => {
@@ -90,11 +96,16 @@ export const update = mutation({
     assertEditorOrAdmin(role);
 
     const unit = await ctx.db.get(args.data.id);
-    if (!(unit && unit.courseId === args.courseId)) throw new Error("Unit not found");
+    if (!(unit && unit.courseId === args.courseId))
+      throw new Error("Unit not found");
 
     await ctx.db.patch(args.data.id, {
       name: args.data.name ?? unit.name,
       isPublished: args.data.isPublished ?? unit.isPublished,
+      description:
+        args.data.description === undefined
+          ? unit.description
+          : (args.data.description ?? undefined),
     });
 
     await ctx.db.insert("logs", {
@@ -114,7 +125,7 @@ export const reorder = mutation({
       v.object({
         id: v.id("units"),
         position: v.number(),
-      }),
+      })
     ),
   },
   handler: async (ctx, args) => {
@@ -124,7 +135,11 @@ export const reorder = mutation({
     // Update each unit order to the provided position
     for (const item of args.data) {
       const unit = await ctx.db.get(item.id);
-      if (unit && unit.courseId === args.courseId && unit.order !== item.position) {
+      if (
+        unit &&
+        unit.courseId === args.courseId &&
+        unit.order !== item.position
+      ) {
         await ctx.db.patch(item.id, { order: item.position });
       }
     }
@@ -148,7 +163,8 @@ export const remove = mutation({
     assertEditorOrAdmin(role);
 
     const unit = await ctx.db.get(args.id);
-    if (!(unit && unit.courseId === args.courseId)) throw new Error("Unit not found");
+    if (!(unit && unit.courseId === args.courseId))
+      throw new Error("Unit not found");
 
     await ctx.db.delete(args.id);
 
@@ -171,5 +187,3 @@ export const remove = mutation({
     });
   },
 });
-
-

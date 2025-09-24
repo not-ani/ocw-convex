@@ -1,5 +1,6 @@
 import { v } from "convex/values";
-import { query, mutation } from "./_generated/server";
+import type { Doc } from "./_generated/dataModel";
+import { mutation, query } from "./_generated/server";
 
 export const getPaginatedCourses = query({
   args: {
@@ -11,10 +12,10 @@ export const getPaginatedCourses = query({
     const { page, limit, search } = args;
     const offset = (page - 1) * limit;
 
-    let allCourses;
+    let allCourses: Doc<"courses">[];
 
     // Apply search if provided
-    if (search && search.trim()) {
+    if (search?.trim()) {
       allCourses = await ctx.db
         .query("courses")
         .withSearchIndex("search_name", (q) => q.search("name", search.trim()))
@@ -46,7 +47,7 @@ export const getCourseById = query({
   args: { courseId: v.id("courses") },
   handler: async (ctx, args) => {
     const course = await ctx.db.get(args.courseId);
-    if (!(course && course.isPublic)) {
+    if (!course?.isPublic) {
       return null;
     }
     return course;
@@ -99,31 +100,34 @@ export const getDashboardSummary = query({
 
     const userRole = args.userRole;
 
-    if (!identity) return null;
+    const isUserRoleAllowed =
+      (typeof userRole === "string" && userRole === "admin") ||
+      (typeof userRole === "string" && userRole === "editor");
 
-    const membership = await ctx.db
-      .query("courseUsers")
-      .withIndex("by_course_and_user", (q) =>
-        q.eq("courseId", args.courseId).eq("userId", identity.tokenIdentifier)
-      )
-      .unique();
-
+    const membership = identity
+      ? await ctx.db
+          .query("courseUsers")
+          .withIndex("by_course_and_user", (q) =>
+            q
+              .eq("courseId", args.courseId)
+              .eq("userId", identity.tokenIdentifier)
+          )
+          .unique()
+      : null;
     const isMembershipAllowed =
-      membership &&
+      !!membership &&
       (membership.role === "admin" || membership.role === "editor");
 
-    const isUserRoleAllowed =
-      !userRole || userRole === "admin" || userRole === "editor";
-
-    if (!isMembershipAllowed || !isUserRoleAllowed) {
-      return null;
+    if (!(isMembershipAllowed || isUserRoleAllowed)) {
+      throw new Error("Not authorized");
     }
 
     const course = await ctx.db.get(args.courseId);
 
-    if (!course) return null;
+    if (!course) {
+      throw new Error("Course not found");
+    }
 
-    console.log(course);
     const units = await ctx.db
       .query("units")
       .withIndex("by_course_id", (q) => q.eq("courseId", course._id))

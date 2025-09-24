@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { mutation, MutationCtx, query } from "./_generated/server";
+import { type MutationCtx, mutation, query } from "./_generated/server";
 
 export const getLessonById = query({
   args: {
@@ -24,14 +24,20 @@ export const getLessonById = query({
   },
 });
 
-function detectEmbed(input: string): { contentType: "google_docs" | "quizlet" | "notion" | "tiptap" | "flashcard"; embedUrl?: string } | null {
+function detectEmbed(input: string): {
+  contentType: "google_docs" | "quizlet" | "notion" | "tiptap" | "flashcard";
+  embedUrl?: string;
+} | null {
   const iframeSrcMatch = input.match(/<iframe[^>]*src=["']([^"']+)["']/i);
   const url = iframeSrcMatch ? iframeSrcMatch[1] : input.trim();
   try {
     const u = new URL(url);
-    if (u.hostname.includes("docs.google.com")) return { contentType: "google_docs", embedUrl: u.toString() };
-    if (u.hostname.includes("quizlet.com")) return { contentType: "quizlet", embedUrl: u.toString() };
-    if (u.hostname.includes("notion.so") || u.hostname.includes("notion.site")) return { contentType: "notion", embedUrl: u.toString() };
+    if (u.hostname.includes("docs.google.com"))
+      return { contentType: "google_docs", embedUrl: u.toString() };
+    if (u.hostname.includes("quizlet.com"))
+      return { contentType: "quizlet", embedUrl: u.toString() };
+    if (u.hostname.includes("notion.so") || u.hostname.includes("notion.site"))
+      return { contentType: "notion", embedUrl: u.toString() };
   } catch {
     return null;
   }
@@ -64,7 +70,9 @@ export const createOrUpdateEmbed = mutation({
       .first();
 
     if (existing) {
-      await ctx.db.patch(existing._id, { embedUrl: detected.embedUrl ?? existing.embedUrl });
+      await ctx.db.patch(existing._id, {
+        embedUrl: detected.embedUrl ?? existing.embedUrl,
+      });
     } else {
       await ctx.db.insert("lessonEmbeds", {
         id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
@@ -84,23 +92,21 @@ export const createOrUpdateEmbed = mutation({
   },
 });
 
-async function getRequesterRole(
-  ctx: MutationCtx,
-  courseId: string,
-) {
+async function getRequesterRole(ctx: MutationCtx, courseId: string) {
   const identity = await ctx.auth.getUserIdentity();
   if (!identity) return null;
   const membership = await ctx.db
     .query("courseUsers")
     .withIndex("by_course_and_user", (q: any) =>
-      q.eq("courseId", courseId as any).eq("userId", identity.tokenIdentifier),
+      q.eq("courseId", courseId as any).eq("userId", identity.tokenIdentifier)
     )
     .unique();
   return membership?.role ?? null;
 }
 
 function assertEditorOrAdmin(role: string | null) {
-  if (!(role === "admin" || role === "editor")) throw new Error("Not authorized");
+  if (!(role === "admin" || role === "editor"))
+    throw new Error("Not authorized");
 }
 
 export const getByUnit = query({
@@ -183,6 +189,8 @@ export const update = mutation({
       id: v.id("lessons"),
       name: v.optional(v.string()),
       isPublished: v.optional(v.boolean()),
+      unitId: v.optional(v.id("units")),
+      content: v.optional(v.union(v.any(), v.null())),
     }),
   },
   handler: async (ctx, args) => {
@@ -193,6 +201,11 @@ export const update = mutation({
     await ctx.db.patch(args.data.id, {
       name: args.data.name ?? lesson.name,
       isPublished: args.data.isPublished ?? lesson.isPublished,
+      unitId: args.data.unitId ?? lesson.unitId,
+      content:
+        args.data.content === undefined
+          ? lesson.content
+          : (args.data.content ?? undefined),
     });
 
     await ctx.db.insert("logs", {
@@ -217,7 +230,11 @@ export const reorder = mutation({
     assertEditorOrAdmin(role);
     for (const item of args.data) {
       const lesson = await ctx.db.get(item.id);
-      if (lesson && lesson.unitId === args.unitId && lesson.order !== item.position) {
+      if (
+        lesson &&
+        lesson.unitId === args.unitId &&
+        lesson.order !== item.position
+      ) {
         await ctx.db.patch(item.id, { order: item.position });
       }
     }

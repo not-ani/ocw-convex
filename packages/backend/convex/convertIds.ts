@@ -1,4 +1,4 @@
-import { mutation, type MutationCtx } from "./_generated/server";
+import { type MutationCtx, mutation } from "./_generated/server";
 
 type TableName =
   | "courses"
@@ -17,13 +17,13 @@ type MigrationResult = {
 async function getConvexIdFromMaybeIdString<T extends TableName>(
   ctx: MutationCtx,
   table: T,
-  value: string | null | undefined,
+  value: string | null | undefined
 ): Promise<string | null> {
   if (!value) return null;
   const normalized = ctx.db.normalizeId(table, value);
   if (normalized) {
     const existing = await ctx.db.get(normalized);
-    if (existing) return (normalized as unknown as string);
+    if (existing) return normalized as unknown as string;
   }
   return null;
 }
@@ -31,14 +31,14 @@ async function getConvexIdFromMaybeIdString<T extends TableName>(
 async function lookupConvexIdByLegacyId<T extends TableName>(
   ctx: MutationCtx,
   table: T,
-  legacyId: string | null | undefined,
+  legacyId: string | null | undefined
 ): Promise<string | null> {
   if (!legacyId) return null;
   const doc = await ctx.db
     .query(table)
     .filter((q: any) => q.eq(q.field("id"), legacyId))
     .first();
-  return doc ? ((doc._id as unknown as string)) : null;
+  return doc ? (doc._id as unknown as string) : null;
 }
 
 export const migrateRelations = mutation({
@@ -73,9 +73,14 @@ export const migrateRelations = mutation({
     {
       const units = await ctx.db.query("units").collect();
       const promises = units.map(async (u: any) => {
-        const asConvex = await getConvexIdFromMaybeIdString(ctx, "courses", u.courseId);
+        const asConvex = await getConvexIdFromMaybeIdString(
+          ctx,
+          "courses",
+          u.courseId
+        );
         let target: string | null = asConvex;
-        if (!target) target = await lookupConvexIdByLegacyId(ctx, "courses", u.courseId);
+        if (!target)
+          target = await lookupConvexIdByLegacyId(ctx, "courses", u.courseId);
         if (target) {
           if (u.courseId !== target) {
             await ctx.db.patch(u._id, { courseId: target });
@@ -96,9 +101,14 @@ export const migrateRelations = mutation({
 
         // courseId
         {
-          const asConvex = await getConvexIdFromMaybeIdString(ctx, "courses", l.courseId);
+          const asConvex = await getConvexIdFromMaybeIdString(
+            ctx,
+            "courses",
+            l.courseId
+          );
           let target: string | null = asConvex;
-          if (!target) target = await lookupConvexIdByLegacyId(ctx, "courses", l.courseId);
+          if (!target)
+            target = await lookupConvexIdByLegacyId(ctx, "courses", l.courseId);
           if (target) {
             if (l.courseId !== target) {
               l.courseId = target;
@@ -111,9 +121,14 @@ export const migrateRelations = mutation({
 
         // unitId
         {
-          const asConvex = await getConvexIdFromMaybeIdString(ctx, "units", l.unitId);
+          const asConvex = await getConvexIdFromMaybeIdString(
+            ctx,
+            "units",
+            l.unitId
+          );
           let target: string | null = asConvex;
-          if (!target) target = await lookupConvexIdByLegacyId(ctx, "units", l.unitId);
+          if (!target)
+            target = await lookupConvexIdByLegacyId(ctx, "units", l.unitId);
           if (target) {
             if (l.unitId !== target) {
               l.unitId = target;
@@ -139,9 +154,14 @@ export const migrateRelations = mutation({
     {
       const embeds = await ctx.db.query("lessonEmbeds").collect();
       const promises = embeds.map(async (e: any) => {
-        const asConvex = await getConvexIdFromMaybeIdString(ctx, "lessons", e.lessonId);
+        const asConvex = await getConvexIdFromMaybeIdString(
+          ctx,
+          "lessons",
+          e.lessonId
+        );
         let target: string | null = asConvex;
-        if (!target) target = await lookupConvexIdByLegacyId(ctx, "lessons", e.lessonId);
+        if (!target)
+          target = await lookupConvexIdByLegacyId(ctx, "lessons", e.lessonId);
         if (target) {
           if (e.lessonId !== target) {
             await ctx.db.patch(e._id, { lessonId: target });
@@ -159,9 +179,14 @@ export const migrateRelations = mutation({
       const cards = await ctx.db.query("easyNoteCards").collect();
       const promises = cards.map(async (c: any) => {
         if (!c.unitId) return;
-        const asConvex = await getConvexIdFromMaybeIdString(ctx, "units", c.unitId);
+        const asConvex = await getConvexIdFromMaybeIdString(
+          ctx,
+          "units",
+          c.unitId
+        );
         let target: string | null = asConvex;
-        if (!target) target = await lookupConvexIdByLegacyId(ctx, "units", c.unitId);
+        if (!target)
+          target = await lookupConvexIdByLegacyId(ctx, "units", c.unitId);
         if (target) {
           if (c.unitId !== target) {
             await ctx.db.patch(c._id, { unitId: target });
@@ -178,9 +203,14 @@ export const migrateRelations = mutation({
     {
       const courseUsers = await ctx.db.query("courseUsers").collect();
       const promises = courseUsers.map(async (cu: any) => {
-        const asConvex = await getConvexIdFromMaybeIdString(ctx, "courses", cu.courseId);
+        const asConvex = await getConvexIdFromMaybeIdString(
+          ctx,
+          "courses",
+          cu.courseId
+        );
         let target: string | null = asConvex;
-        if (!target) target = await lookupConvexIdByLegacyId(ctx, "courses", cu.courseId);
+        if (!target)
+          target = await lookupConvexIdByLegacyId(ctx, "courses", cu.courseId);
         if (target) {
           if (cu.courseId !== target) {
             await ctx.db.patch(cu._id, { courseId: target });
@@ -200,9 +230,18 @@ export const migrateRelations = mutation({
         let changed = false;
 
         if (log.courseId) {
-          const asConvex = await getConvexIdFromMaybeIdString(ctx, "courses", log.courseId);
+          const asConvex = await getConvexIdFromMaybeIdString(
+            ctx,
+            "courses",
+            log.courseId
+          );
           let target: string | null = asConvex;
-          if (!target) target = await lookupConvexIdByLegacyId(ctx, "courses", log.courseId);
+          if (!target)
+            target = await lookupConvexIdByLegacyId(
+              ctx,
+              "courses",
+              log.courseId
+            );
           if (target) {
             if (log.courseId !== target) {
               log.courseId = target;
@@ -214,9 +253,14 @@ export const migrateRelations = mutation({
         }
 
         if (log.unitId) {
-          const asConvex = await getConvexIdFromMaybeIdString(ctx, "units", log.unitId);
+          const asConvex = await getConvexIdFromMaybeIdString(
+            ctx,
+            "units",
+            log.unitId
+          );
           let target: string | null = asConvex;
-          if (!target) target = await lookupConvexIdByLegacyId(ctx, "units", log.unitId);
+          if (!target)
+            target = await lookupConvexIdByLegacyId(ctx, "units", log.unitId);
           if (target) {
             if (log.unitId !== target) {
               log.unitId = target;
@@ -228,9 +272,18 @@ export const migrateRelations = mutation({
         }
 
         if (log.lessonId) {
-          const asConvex = await getConvexIdFromMaybeIdString(ctx, "lessons", log.lessonId);
+          const asConvex = await getConvexIdFromMaybeIdString(
+            ctx,
+            "lessons",
+            log.lessonId
+          );
           let target: string | null = asConvex;
-          if (!target) target = await lookupConvexIdByLegacyId(ctx, "lessons", log.lessonId);
+          if (!target)
+            target = await lookupConvexIdByLegacyId(
+              ctx,
+              "lessons",
+              log.lessonId
+            );
           if (target) {
             if (log.lessonId !== target) {
               log.lessonId = target;
