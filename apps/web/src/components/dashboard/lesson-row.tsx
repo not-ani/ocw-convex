@@ -31,7 +31,9 @@ export function LessonRow({
 
   const handleBlur = useCallback(() => {
     const raw = draft.trim();
-    if (!raw) return;
+    if (!raw) {
+      return;
+    }
     onUpdateEmbed(raw);
     setDraft("");
   }, [draft, onUpdateEmbed]);

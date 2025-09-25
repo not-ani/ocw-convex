@@ -10,10 +10,11 @@ export function QuizletEmbed({
   embedId: string | null;
   password: string | null;
 }) {
-  if (!embedId) return <div>Invalid Quizlet Embed</div>;
+  if (!embedId) {
+    return <div>Invalid Quizlet Embed</div>;
+  }
 
   const url = embedId;
-  console.log("url" + url);
 
   return (
     <div className="flex h-screen flex-col">

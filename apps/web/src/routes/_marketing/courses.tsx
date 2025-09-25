@@ -20,7 +20,7 @@ function CoursesPage() {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [debouncedSearch]);
+  }, []);
 
   const coursesData = useQuery(api.courses.getPaginatedCourses, {
     page: currentPage,
@@ -32,13 +32,10 @@ function CoursesPage() {
   const totalPages = coursesData?.totalPages ?? 1;
   const totalCourses = coursesData?.totalCourses ?? 0;
 
-  const goToPage = useCallback(
-    (page: number) => {
-      setCurrentPage(page);
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    },
-    [setCurrentPage]
-  );
+  const goToPage = useCallback((page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
 
   const handleSearchChange = useCallback((value: string) => {
     setSearchInput(value);

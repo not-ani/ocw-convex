@@ -1,11 +1,11 @@
 import { useEffect, useRef } from "react";
 
-interface QRCodeProps {
+type QRCodeProps = {
   value: string;
   size?: number;
   bgColor?: string;
   fgColor?: string;
-}
+};
 
 export default function QRCode({
   value,
@@ -17,7 +17,9 @@ export default function QRCode({
 
   useEffect(() => {
     const generateQRCode = async () => {
-      if (!qrRef.current) return;
+      if (!qrRef.current) {
+        return;
+      }
 
       try {
         // Dynamically import QRCode library
@@ -49,9 +51,7 @@ export default function QRCode({
         }
 
         qrCode.append(qrRef.current);
-      } catch (error) {
-        console.error("Failed to generate QR code:", error);
-
+      } catch (_error) {
         // Fallback to text if QR code generation fails
         if (qrRef.current) {
           qrRef.current.innerHTML = `<div style="width:${size}px;height:${size}px;display:flex;align-items:center;justify-content:center;border:1px dashed #ccc;text-align:center;padding:1rem;">

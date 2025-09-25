@@ -20,12 +20,11 @@ import {
   useQuery,
 } from "convex/react";
 import { useCallback, useEffect, useState } from "react";
+import { CreateUnitDialog } from "@/components/dashboard/create-unit";
 import { LessonsCard } from "@/components/dashboard/lesson-card";
-
 import { UnitsCard } from "@/components/dashboard/units-card";
 import { Button } from "@/components/ui/button";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
-import { CreateUnitDialog } from "@/components/dashboard/create-unit";
 
 export const Route = createFileRoute("/course/$id/dashboard")({
   component: RouteComponent,

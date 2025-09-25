@@ -3,12 +3,12 @@
 import type React from "react";
 import { createContext, useContext, useEffect, useState } from "react";
 
-interface ExploreContextType {
+type ExploreContextType = {
   isOpen: boolean;
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
   isMobile: boolean;
   resetExplore: () => void;
-}
+};
 
 const ExploreContext = createContext<ExploreContextType | undefined>(undefined);
 
@@ -62,7 +62,7 @@ export const ExploreProvider: React.FC<{ children: React.ReactNode }> = ({
     return () => {
       document.removeEventListener("click", handleLinkClick);
     };
-  }, []);
+  }, [resetExplore]);
 
   return (
     <ExploreContext.Provider

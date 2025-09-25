@@ -63,9 +63,13 @@ export function LessonsCard({
   );
 
   const handleAdd = useCallback(async () => {
-    if (!selectedUnitId) return;
+    if (!selectedUnitId) {
+      return;
+    }
     const name = newLessonName.trim();
-    if (!name) return;
+    if (!name) {
+      return;
+    }
     await onCreateLesson({
       unitId: selectedUnitId,
       name,
@@ -77,7 +81,9 @@ export function LessonsCard({
 
   const handleReorder = useCallback(
     async (oldIndex: number, newIndex: number) => {
-      if (oldIndex < 0 || newIndex < 0 || !selectedUnitId) return;
+      if (oldIndex < 0 || newIndex < 0 || !selectedUnitId) {
+        return;
+      }
       const next = arrayMove(lessonList, oldIndex, newIndex);
       const payload = next.map((l, index) => ({
         id: l.id as Id<"lessons">,
@@ -162,7 +168,9 @@ export function LessonsCard({
           collisionDetection={closestCenter}
           onDragEnd={(e) => {
             const { active, over } = e;
-            if (!(active && over) || active.id === over.id) return;
+            if (!(active && over) || active.id === over.id) {
+              return;
+            }
             const oldIndex = lessonIds.indexOf(String(active.id));
             const newIndex = lessonIds.indexOf(String(over.id));
             handleReorder(oldIndex, newIndex).catch(console.error);

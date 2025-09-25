@@ -1,10 +1,10 @@
 import { useState } from "react";
 
-interface ContributorCardProps {
+type ContributorCardProps = {
   name: string;
   avatar: string;
   description: string;
-}
+};
 
 export default function ContributorCard({
   name,

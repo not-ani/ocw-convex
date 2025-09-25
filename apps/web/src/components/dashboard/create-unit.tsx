@@ -1,9 +1,16 @@
 "use client";
-import { toast } from "sonner";
-import { useForm } from "react-hook-form";
+import { useUser } from "@clerk/clerk-react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { api } from "@ocw-convex/backend/convex/_generated/api";
+import type { Id } from "@ocw-convex/backend/convex/_generated/dataModel";
+import { getRouteApi } from "@tanstack/react-router";
+import { useMutation } from "convex/react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Form,
   FormControl,
@@ -15,14 +22,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogTrigger } from "../ui/dialog";
-import { useMutation } from "convex/react";
-import { api } from "@ocw-convex/backend/convex/_generated/api";
-import type { Id } from "@ocw-convex/backend/convex/_generated/dataModel";
-import { useState } from "react";
-import { getRouteApi } from "@tanstack/react-router";
-import { useUser } from "@clerk/clerk-react";
 
 const formSchema = z.object({
   unitName: z.string().min(1).min(3).max(50),
@@ -30,10 +30,10 @@ const formSchema = z.object({
   isPublished: z.boolean().default(true).optional(),
 });
 
-interface CreateUnitFormProps {
+type CreateUnitFormProps = {
   callback: () => void;
   courseId: Id<"courses">;
-}
+};
 
 export function CreateUnitForm({ callback, courseId }: CreateUnitFormProps) {
   const form = useForm<z.infer<typeof formSchema>>({
@@ -50,8 +50,7 @@ export function CreateUnitForm({ callback, courseId }: CreateUnitFormProps) {
         ...values,
         courseId,
       });
-    } catch (error) {
-      console.error("Form submission error", error);
+    } catch (_error) {
       toast.error("Failed to submit the form. Please try again.");
     }
   }
@@ -59,8 +58,8 @@ export function CreateUnitForm({ callback, courseId }: CreateUnitFormProps) {
   return (
     <Form {...form}>
       <form
+        className="flex flex-col justify-evenly gap-4 p-4"
         onSubmit={form.handleSubmit(onSubmit)}
-        className="p-4 flex flex-col gap-4 justify-evenly"
       >
         <FormField
           control={form.control}
@@ -89,8 +88,8 @@ export function CreateUnitForm({ callback, courseId }: CreateUnitFormProps) {
               <FormLabel>Description </FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder="A brief description of your unit (optional)"
                   className="resize-none"
+                  placeholder="A brief description of your unit (optional)"
                   {...field}
                 />
               </FormControl>
@@ -125,7 +124,7 @@ export function CreateUnitForm({ callback, courseId }: CreateUnitFormProps) {
     </Form>
   );
 }
-const route = getRouteApi(`/course/$id/dashboard`);
+const route = getRouteApi("/course/$id/dashboard");
 
 export function CreateUnitDialog() {
   const [open, setOpen] = useState(false);
@@ -138,12 +137,12 @@ export function CreateUnitDialog() {
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog onOpenChange={setOpen} open={open}>
       <DialogTrigger asChild>
         <Button variant={"outline"}>Create Unit</Button>
       </DialogTrigger>
       <DialogContent>
-        <CreateUnitForm courseId={id} callback={changeOpen} />
+        <CreateUnitForm callback={changeOpen} courseId={id} />
       </DialogContent>
     </Dialog>
   );

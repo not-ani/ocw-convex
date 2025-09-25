@@ -3,14 +3,14 @@ import { LoaderCircleIcon } from "lucide-react";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 
-interface EmbedLoaderProps {
+type EmbedLoaderProps = {
   src: string;
   loaderComponent?: React.ReactNode;
   timeout?: number;
   onLoad?: () => void;
   onError?: (error: Error) => void;
   className?: string;
-}
+};
 
 const DEFAULT_TIMEOUT = 10_000; // 10 seconds
 /*

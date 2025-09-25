@@ -17,7 +17,9 @@ function Pagination({
   const pages = useMemo<(number | "ellipsis")[]>(() => {
     const arr: (number | "ellipsis")[] = [];
     if (totalPages <= maxVisible) {
-      for (let i = 1; i <= totalPages; i++) arr.push(i);
+      for (let i = 1; i <= totalPages; i++) {
+        arr.push(i);
+      }
       return arr;
     }
 
@@ -30,13 +32,19 @@ function Pagination({
 
     if (start > 1) {
       arr.push(1);
-      if (start > 2) arr.push("ellipsis");
+      if (start > 2) {
+        arr.push("ellipsis");
+      }
     }
 
-    for (let i = start; i <= end; i++) arr.push(i);
+    for (let i = start; i <= end; i++) {
+      arr.push(i);
+    }
 
     if (end < totalPages) {
-      if (end < totalPages - 1) arr.push("ellipsis");
+      if (end < totalPages - 1) {
+        arr.push("ellipsis");
+      }
       arr.push(totalPages);
     }
 

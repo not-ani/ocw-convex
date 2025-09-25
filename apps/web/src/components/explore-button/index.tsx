@@ -7,21 +7,21 @@ import { Badge } from "../ui/badge";
 import { ScrollArea } from "../ui/scroll-area";
 import { useExplore } from "./context";
 
-interface Course {
+type Course = {
   name: string;
   link: string;
   isNew?: boolean;
-}
+};
 
-interface Category {
+type Category = {
   name: string;
   courses: Course[];
-}
+};
 
-interface Section {
+type Section = {
   title: string;
   categories: Category[];
-}
+};
 
 const navigationData: Section[] = [
   {
