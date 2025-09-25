@@ -49,7 +49,10 @@ export const getById = query({
 export const create = mutation({
   args: {
     courseId: v.id("courses"),
-    name: v.string(),
+    description: v.optional(v.string()),
+    isPublished: v.optional(v.boolean()),
+    unitName: v.string(),
+    role: v.string(),
   },
   handler: async (ctx, args) => {
     const role = await getRequesterRole(ctx, args.courseId);
@@ -64,9 +67,9 @@ export const create = mutation({
     const id = await ctx.db.insert("units", {
       id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
       courseId: args.courseId,
-      name: args.name,
-      description: undefined,
-      isPublished: false,
+      name: args.unitName,
+      description: args.description ?? undefined,
+      isPublished: args.isPublished ?? false,
       order,
     });
 
@@ -75,6 +78,7 @@ export const create = mutation({
       courseId: args.courseId,
       action: "CREATE_UNIT",
       timestamp: Date.now(),
+      unitId: id,
     });
 
     return id;

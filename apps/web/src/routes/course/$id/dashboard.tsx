@@ -25,6 +25,7 @@ import { LessonsCard } from "@/components/dashboard/lesson-card";
 import { UnitsCard } from "@/components/dashboard/units-card";
 import { Button } from "@/components/ui/button";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { CreateUnitDialog } from "@/components/dashboard/create-unit";
 
 export const Route = createFileRoute("/course/$id/dashboard")({
   component: RouteComponent,
@@ -234,15 +235,18 @@ function Content() {
           <h1 className="font-bold text-2xl">{dashboard.course.name}</h1>
           <p className="text-muted-foreground text-sm">Manage units</p>
         </div>
-        <Link
-          className="inline-flex"
-          params={{ id: courseId }}
-          to="/course/$id"
-        >
-          <Button type="button" variant="secondary">
-            View course
-          </Button>
-        </Link>
+        <div className="flex items-center justify-evenly gap-3">
+          <Link
+            className="inline-flex"
+            params={{ id: courseId }}
+            to="/course/$id"
+          >
+            <Button type="button" variant="secondary">
+              View course
+            </Button>
+          </Link>
+          <CreateUnitDialog />
+        </div>
       </div>
 
       <DndContext
