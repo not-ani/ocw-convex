@@ -93,16 +93,6 @@ function Content() {
     }
   }, [selectedUnitId, localUnits]);
 
-  const handleCreateUnit = useCallback(
-    async (name: string) => {
-      if (!name.trim()) {
-        return;
-      }
-      await createUnit({ courseId, name: name.trim() });
-    },
-    [createUnit, courseId]
-  );
-
   const handleUpdateUnit = useCallback(
     async (payload: {
       id: Id<"units">;
@@ -276,7 +266,6 @@ function Content() {
         sensors={sensors}
       >
         <UnitsCard
-          onCreateUnit={handleCreateUnit}
           onDeleteUnit={handleRemoveUnit}
           onReorder={handleReorderUnits}
           onSelectUnit={setSelectedUnitId}

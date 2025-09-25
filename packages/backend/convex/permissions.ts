@@ -39,8 +39,7 @@ export function assertEditorOrAdmin(requesterInfo: GetRequesterRole | null) {
     requesterInfo?.courseRole === "editor";
 
   const hasSiteRole = requesterInfo?.siteRole === "admin";
-
-  if (!(hasCourseRole && hasSiteRole)) {
+  if (!(hasCourseRole || hasSiteRole)) {
     throw new Error("Not authorized");
   }
 }

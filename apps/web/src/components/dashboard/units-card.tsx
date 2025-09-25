@@ -1,12 +1,17 @@
+import { DndContext, type DragEndEvent } from "@dnd-kit/core";
 import {
+  arrayMove,
   SortableContext,
   useSortable,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import type { Id } from "@ocw-convex/backend/convex/_generated/dataModel";
-import { GripVertical } from "lucide-react";
+import type { ColumnDef, Row } from "@tanstack/react-table";
+import { Eye, EyeOff, GripVertical, MoreVertical, Trash2 } from "lucide-react";
+import type React from "react";
 import { useCallback, useMemo, useState } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -15,40 +20,88 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+/* shadcn-like menu + dialog primitives. Adjust paths for your project */
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import type {
+  TableRowProps as KiboTableRowProps,
+  TableBodyProps,
+  TableCellProps,
+  TableColumnHeaderProps,
+  TableHeaderGroupProps,
+  TableHeaderProps,
+  TableHeadProps,
+  TableProviderProps,
+} from "@/components/ui/kibo-ui/table";
+import {
+  TableBody,
+  TableCell,
+  TableColumnHeader,
+  TableHead,
+  TableHeader,
+  TableHeaderGroup,
+  TableProvider,
+  TableRow,
+} from "@/components/ui/kibo-ui/table";
 
 type Unit = { id: Id<"units"> | string; name: string; isPublished: boolean };
 
-export function UnitsCard({
-  units,
-  selectedUnitId,
-  onSelectUnit,
-  onCreateUnit,
-  onTogglePublish,
-  onDeleteUnit,
-}: {
+type UnitsCardProps = {
   units: Unit[];
   selectedUnitId: Id<"units"> | null;
   onSelectUnit: (id: Id<"units">) => void;
-  onCreateUnit: (name: string) => Promise<void>;
   onTogglePublish: (payload: {
     id: Id<"units">;
     data: { isPublished: boolean };
   }) => Promise<void>;
   onDeleteUnit: (id: Id<"units">) => Promise<void>;
   onReorder: (data: { id: Id<"units">; position: number }[]) => Promise<void>;
-}) {
-  const [newUnitName, setNewUnitName] = useState("");
-  const unitIds = useMemo(() => units.map((u) => String(u.id)), [units]);
+};
 
-  const handleAdd = useCallback(async () => {
-    const name = newUnitName.trim();
-    if (!name) {
-      return;
-    }
-    await onCreateUnit(name);
-    setNewUnitName("");
-  }, [newUnitName, onCreateUnit]);
+export function UnitsCard({
+  units,
+  selectedUnitId,
+  onSelectUnit,
+  onTogglePublish,
+  onDeleteUnit,
+  onReorder,
+}: UnitsCardProps) {
+  const unitIds = useMemo<string[]>(
+    () => units.map((u) => String(u.id)),
+    [units]
+  );
+
+  const handleDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { active, over } = event;
+      if (!over || active.id === over.id) return;
+
+      const oldIndex = unitIds.indexOf(String(active.id));
+      const newIndex = unitIds.indexOf(String(over.id));
+      if (oldIndex === -1 || newIndex === -1) return;
+
+      const newOrder = arrayMove(unitIds, oldIndex, newIndex);
+      const payload = newOrder.map((id, idx) => ({
+        id: id as Id<"units">,
+        position: idx,
+      }));
+      void onReorder(payload);
+    },
+    [unitIds, onReorder]
+  );
 
   return (
     <Card>
@@ -56,60 +109,174 @@ export function UnitsCard({
         <div>
           <CardTitle className="text-base">Units</CardTitle>
           <CardDescription>
-            Drag to reorder. Click to toggle publish.
+            Drag to reorder. Open the menu for actions (publish/unpublish,
+            delete).
           </CardDescription>
-        </div>
-
-        <div className="flex gap-2">
-          <Input
-            className="w-56"
-            onChange={(e) => setNewUnitName(e.target.value)}
-            placeholder="New unit name"
-            value={newUnitName}
-          />
-          <Button onClick={handleAdd} type="button">
-            Add unit
-          </Button>
         </div>
       </CardHeader>
 
       <CardContent>
-        <SortableContext items={unitIds} strategy={verticalListSortingStrategy}>
-          <ul className="divide-y divide-border">
-            {units.map((u) => (
-              <UnitItem
-                isSelected={String(selectedUnitId) === String(u.id)}
-                key={String(u.id)}
-                onDelete={() => onDeleteUnit(u.id as Id<"units">)}
-                onSelect={() => onSelectUnit(u.id as Id<"units">)}
-                onTogglePublish={() =>
-                  onTogglePublish({
-                    id: u.id as Id<"units">,
-                    data: { isPublished: !u.isPublished },
-                  })
-                }
-                unit={u}
-              />
-            ))}
-          </ul>
-        </SortableContext>
+        <DndContext onDragEnd={handleDragEnd}>
+          <SortableContext
+            items={unitIds}
+            strategy={verticalListSortingStrategy}
+          >
+            <UnitsTable
+              onDeleteUnit={onDeleteUnit}
+              onSelectUnit={onSelectUnit}
+              onTogglePublish={onTogglePublish}
+              selectedUnitId={selectedUnitId}
+              units={units}
+            />
+          </SortableContext>
+        </DndContext>
       </CardContent>
     </Card>
   );
 }
 
-function UnitItem({
-  unit,
+/* UnitsTable: builds TanStack column defs and renders rows via Kibo table */
+function UnitsTable({
+  units,
+  selectedUnitId,
+  onSelectUnit,
+  onTogglePublish,
+  onDeleteUnit,
+}: {
+  units: Unit[];
+  selectedUnitId: Id<"units"> | null;
+  onSelectUnit: (id: Id<"units">) => void;
+  onTogglePublish: (payload: {
+    id: Id<"units">;
+    data: { isPublished: boolean };
+  }) => Promise<void>;
+  onDeleteUnit: (id: Id<"units">) => Promise<void>;
+}) {
+  const columns = useMemo<ColumnDef<Unit, any>[]>(
+    () => [
+      {
+        id: "drag",
+        accessorFn: (row) => String(row.id),
+        header: ({ column }) => (
+          <TableColumnHeader
+            column={column as unknown as TableColumnHeaderProps<any>}
+            title=""
+          />
+        ),
+        cell: ({ row }) => (
+          <div className="flex w-10 items-center justify-center">
+            <DragHandle rowId={String(row.original.id)} />
+          </div>
+        ),
+      },
+      {
+        accessorKey: "name",
+        header: ({ column }) => (
+          <TableColumnHeader
+            column={column as unknown as TableColumnHeaderProps<Unit>}
+            title="Name"
+          />
+        ),
+        cell: ({ row }) => (
+          <div className="flex items-center gap-3">
+            <Avatar className="size-6">
+              <AvatarImage src={getAvatarUrl(row.original.name)} />
+              <AvatarFallback>{row.original.name.slice(0, 2)}</AvatarFallback>
+            </Avatar>
+            <div>
+              <div className="font-medium">{row.original.name}</div>
+              <div className="text-muted-foreground text-xs">
+                {row.original.isPublished ? "Published" : "Draft"}
+              </div>
+            </div>
+          </div>
+        ),
+      },
+      {
+        id: "actions",
+        accessorFn: (row) => String(row.id),
+        header: ({ column }) => (
+          <TableColumnHeader
+            column={column as unknown as TableColumnHeaderProps<Unit>}
+            title="Actions"
+          />
+        ),
+        cell: ({ row }) => (
+          <div className="flex items-center justify-end gap-2">
+            <ActionsMenu
+              isSelected={String(selectedUnitId) === String(row.original.id)}
+              onDelete={() => onDeleteUnit(row.original.id as Id<"units">)}
+              onSelect={() => onSelectUnit(row.original.id as Id<"units">)}
+              onTogglePublish={() =>
+                onTogglePublish({
+                  id: row.original.id as Id<"units">,
+                  data: { isPublished: !row.original.isPublished },
+                })
+              }
+              unit={row.original}
+            />
+          </div>
+        ),
+      },
+    ],
+    [onDeleteUnit, onSelectUnit, onTogglePublish, selectedUnitId]
+  );
+
+  // TableProvider props typing may vary; use inference from your TableProvider.
+  return (
+    <TableProvider columns={columns} data={units as Unit[]}>
+      <TableHeader>
+        {({ headerGroup }) => (
+          <TableHeaderGroup
+            headerGroup={headerGroup as unknown as TableHeaderGroupProps<any>}
+            key={String((headerGroup as { id?: string }).id ?? "")}
+          >
+            {({ header }) => (
+              <TableHead
+                header={header as unknown as TableHeadProps<any>}
+                key={String((header as { id?: string }).id ?? "")}
+              />
+            )}
+          </TableHeaderGroup>
+        )}
+      </TableHeader>
+
+      <TableBody>
+        {({ row: rowProp }) => {
+          const row = rowProp as Row<Unit>;
+          return (
+            <SortableRow
+              isSelected={String(selectedUnitId) === String(row.original.id)}
+              key={String(row.id)}
+              onSelect={() => onSelectUnit(row.original.id as Id<"units">)}
+              row={row}
+            >
+              {({ cell }) => (
+                <TableCell
+                  cell={cell as unknown as TableCellProps<any>}
+                  key={String((cell as { id?: string }).id ?? "")}
+                />
+              )}
+            </SortableRow>
+          );
+        }}
+      </TableBody>
+    </TableProvider>
+  );
+}
+
+/* SortableRow wraps the Kibo TableRow and wires useSortable for drag transforms.
+   It accepts a TanStack Row<Unit> to keep typings pure. */
+function SortableRow({
+  row,
   isSelected,
   onSelect,
-  onTogglePublish,
-  onDelete,
+  children,
 }: {
-  unit: { id: string | Id<"units">; name: string; isPublished: boolean };
+  row: Row<Unit>;
   isSelected: boolean;
   onSelect: () => void;
-  onTogglePublish: () => void;
-  onDelete: () => void;
+  children: (props: { cell: React.ReactElement }) => React.ReactElement;
 }) {
   const {
     attributes,
@@ -119,80 +286,196 @@ function UnitItem({
     transition,
     setNodeRef,
     isDragging,
-  } = useSortable({
-    id: String(unit.id),
-  });
+  } = useSortable({ id: String(row.id) });
 
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  } as React.CSSProperties;
+  const style = useMemo(
+    () =>
+      ({
+        transform: CSS.Transform.toString(transform),
+        transition,
+      }) as React.CSSProperties,
+    [transform, transition]
+  );
 
+  // TableRow from Kibo UI in your example accepts a prop "row" (the TanStack Row<T>).
+  // If your TableRow forwards refs, this will attach correctly.
   return (
-    <li
-      className={`flex items-center justify-between py-2 ${
-        isDragging ? "opacity-80" : ""
-      }`}
+    <TableRow
+      aria-pressed={isSelected}
+      className={isDragging ? "opacity-80" : ""}
+      onClick={onSelect}
       ref={setNodeRef}
+      row={row}
       style={style}
     >
-      <div className="flex w-full items-center justify-between">
-        <div className="flex items-center gap-3">
-          <button
-            aria-label="Drag to reorder unit"
-            className="inline-flex h-8 w-8 cursor-grab items-center justify-center rounded-md hover:bg-accent focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 active:cursor-grabbing"
-            onClick={(e) => e.stopPropagation()}
-            ref={setActivatorNodeRef}
-            type="button"
-            {...attributes}
-            {...listeners}
+      {children({
+        cell: row.getVisibleCells()[0].column ? (
+          (row.getVisibleCells()[0] as unknown as React.ReactElement)
+        ) : (
+          <></>
+        ),
+      })}
+    </TableRow>
+  );
+}
+
+/* DragHandle: uses the activator node ref provided by useSortable in the row.
+   To keep the activator tied to the same sortable hook, we use a tiny hook that
+   re-derives the same sortable instance for the id, but only reads attributes/listeners.
+   This avoids any use of `any`. */
+function DragHandle({ rowId }: { rowId: string }) {
+  const { attributes, listeners, setActivatorNodeRef } = useSortable({
+    id: rowId,
+  });
+
+  return (
+    <button
+      aria-label="Drag to reorder unit"
+      className="inline-flex h-8 w-8 cursor-grab items-center justify-center rounded-md hover:bg-accent focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 active:cursor-grabbing"
+      onClick={(e) => e.stopPropagation()}
+      ref={setActivatorNodeRef}
+      type="button"
+      {...attributes}
+      {...listeners}
+    >
+      <GripVertical className="h-4 w-4 text-muted-foreground" />
+    </button>
+  );
+}
+
+/* ActionsMenu: shadcn DropdownMenu with confirmation dialogs for Delete and Unpublish */
+function ActionsMenu({
+  unit,
+  isSelected,
+  onSelect,
+  onTogglePublish,
+  onDelete,
+}: {
+  unit: Unit;
+  isSelected: boolean;
+  onSelect: () => void;
+  onTogglePublish: () => Promise<void>;
+  onDelete: () => Promise<void>;
+}) {
+  const [openDeleteConfirm, setOpenDeleteConfirm] = useState(false);
+  const [openUnpublishConfirm, setOpenUnpublishConfirm] = useState(false);
+
+  return (
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            aria-label="Open actions"
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
+            size="sm"
+            title="Actions"
+            variant="ghost"
           >
-            <GripVertical className="h-4 w-4 text-muted-foreground" />
-          </button>
-          <div className="size-2 rounded-full bg-muted" />
-          <button
-            aria-pressed={isSelected}
-            className="flex-1 text-left"
-            onClick={onSelect}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                onSelect();
+            <MoreVertical size={16} />
+          </Button>
+        </DropdownMenuTrigger>
+
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem
+            onClick={(e) => {
+              e.stopPropagation();
+              onSelect();
+            }}
+          >
+            Select
+          </DropdownMenuItem>
+
+          <DropdownMenuItem
+            onClick={(e) => {
+              e.stopPropagation();
+              if (unit.isPublished) {
+                setOpenUnpublishConfirm(true);
+              } else {
+                void onTogglePublish();
               }
             }}
-            type="button"
-          >
-            <div className="font-medium">{unit.name}</div>
-            <div className="text-muted-foreground text-xs">
-              {unit.isPublished ? "Published" : "Draft"}
-            </div>
-          </button>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <Button
-            onClick={(e) => {
-              e.stopPropagation();
-              onTogglePublish();
-            }}
-            type="button"
-            variant={unit.isPublished ? "secondary" : "outline"}
           >
             {unit.isPublished ? "Unpublish" : "Publish"}
-          </Button>
+          </DropdownMenuItem>
 
-          <Button
+          <DropdownMenuItem
             onClick={(e) => {
               e.stopPropagation();
-              onDelete();
+              setOpenDeleteConfirm(true);
             }}
-            type="button"
-            variant="destructive"
           >
             Delete
-          </Button>
-        </div>
-      </div>
-    </li>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <Dialog onOpenChange={setOpenDeleteConfirm} open={openDeleteConfirm}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete unit</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete &quot;{unit.name}&quot;? This
+              action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              onClick={() => setOpenDeleteConfirm(false)}
+              variant="outline"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={async () => {
+                await onDelete();
+                setOpenDeleteConfirm(false);
+              }}
+              variant="destructive"
+            >
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        onOpenChange={setOpenUnpublishConfirm}
+        open={openUnpublishConfirm}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Unpublish unit</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to unpublish &quot;{unit.name}&quot;?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              onClick={() => setOpenUnpublishConfirm(false)}
+              variant="outline"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={async () => {
+                await onTogglePublish();
+                setOpenUnpublishConfirm(false);
+              }}
+              variant="primary"
+            >
+              Unpublish
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
+}
+
+/* Simple avatar helper */
+function getAvatarUrl(name: string): string {
+  const seed = encodeURIComponent(name);
+  return `https://api.dicebear.com/8.x/initials/svg?seed=${seed}`;
 }
