@@ -29,6 +29,10 @@ function Header1() {
           href: "/about",
         },
         {
+          title: "For teachers",
+          href: "/teachers",
+        },
+        {
           title: "Statistics",
           href: "/statistics",
         },

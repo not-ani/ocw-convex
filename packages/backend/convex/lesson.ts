@@ -1,5 +1,6 @@
 import { v } from "convex/values";
-import { type MutationCtx, mutation, query } from "./_generated/server";
+import { mutation, query } from "./_generated/server";
+import { assertEditorOrAdmin, getRequesterRole } from "./permissions";
 
 export const getLessonById = query({
   args: {
@@ -24,20 +25,27 @@ export const getLessonById = query({
   },
 });
 
+const regex = /<iframe[^>]*src=["']([^"']+)["']/i;
 function detectEmbed(input: string): {
   contentType: "google_docs" | "quizlet" | "notion" | "tiptap" | "flashcard";
   embedUrl?: string;
 } | null {
-  const iframeSrcMatch = input.match(/<iframe[^>]*src=["']([^"']+)["']/i);
+  const iframeSrcMatch = input.match(regex);
   const url = iframeSrcMatch ? iframeSrcMatch[1] : input.trim();
   try {
     const u = new URL(url);
-    if (u.hostname.includes("docs.google.com"))
+    if (u.hostname.includes("docs.google.com")) {
       return { contentType: "google_docs", embedUrl: u.toString() };
-    if (u.hostname.includes("quizlet.com"))
+    }
+    if (u.hostname.includes("quizlet.com")) {
       return { contentType: "quizlet", embedUrl: u.toString() };
-    if (u.hostname.includes("notion.so") || u.hostname.includes("notion.site"))
+    }
+    if (
+      u.hostname.includes("notion.so") ||
+      u.hostname.includes("notion.site")
+    ) {
       return { contentType: "notion", embedUrl: u.toString() };
+    }
   } catch {
     return null;
   }
@@ -51,13 +59,19 @@ export const createOrUpdateEmbed = mutation({
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("Not authenticated");
+    if (!identity) {
+      throw new Error("Not authenticated");
+    }
 
     const lesson = await ctx.db.get(args.lessonId);
-    if (!lesson) throw new Error("Lesson not found");
+    if (!lesson) {
+      throw new Error("Lesson not found");
+    }
 
     const detected = detectEmbed(args.raw);
-    if (!detected) throw new Error("Unsupported embed");
+    if (!detected) {
+      throw new Error("Unsupported embed");
+    }
 
     // Update lesson contentType if mismatched
     if (lesson.contentType !== detected.contentType) {
@@ -75,7 +89,6 @@ export const createOrUpdateEmbed = mutation({
       });
     } else {
       await ctx.db.insert("lessonEmbeds", {
-        id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
         lessonId: args.lessonId,
         embedUrl: detected.embedUrl ?? "",
       });
@@ -91,28 +104,9 @@ export const createOrUpdateEmbed = mutation({
     });
   },
 });
-
-async function getRequesterRole(ctx: MutationCtx, courseId: string) {
-  const identity = await ctx.auth.getUserIdentity();
-  if (!identity) return null;
-  const membership = await ctx.db
-    .query("courseUsers")
-    .withIndex("by_course_and_user", (q: any) =>
-      q.eq("courseId", courseId as any).eq("userId", identity.tokenIdentifier)
-    )
-    .unique();
-  return membership?.role ?? null;
-}
-
-function assertEditorOrAdmin(role: string | null) {
-  if (!(role === "admin" || role === "editor"))
-    throw new Error("Not authorized");
-}
-
 export const getByUnit = query({
   args: { unitId: v.id("units") },
   handler: async (ctx, args) => {
-    console.log("args", args);
     const lessons = await ctx.db
       .query("lessons")
       .withIndex("by_unit_and_order", (q) => q.eq("unitId", args.unitId))
@@ -149,7 +143,6 @@ export const create = mutation({
     const detected = args.embedRaw ? detectEmbed(args.embedRaw) : null;
 
     const lessonId = await ctx.db.insert("lessons", {
-      id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
       order,
       isPublished: false,
       pureLink: true,
@@ -162,7 +155,6 @@ export const create = mutation({
 
     if (detected?.embedUrl) {
       await ctx.db.insert("lessonEmbeds", {
-        id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
         lessonId,
         embedUrl: detected.embedUrl,
         password: undefined,
@@ -197,7 +189,9 @@ export const update = mutation({
     const role = await getRequesterRole(ctx, args.courseId);
     assertEditorOrAdmin(role);
     const lesson = await ctx.db.get(args.data.id);
-    if (!lesson) throw new Error("Lesson not found");
+    if (!lesson) {
+      throw new Error("Lesson not found");
+    }
     await ctx.db.patch(args.data.id, {
       name: args.data.name ?? lesson.name,
       isPublished: args.data.isPublished ?? lesson.isPublished,
@@ -255,7 +249,9 @@ export const remove = mutation({
     const role = await getRequesterRole(ctx, args.courseId);
     assertEditorOrAdmin(role);
     const lesson = await ctx.db.get(args.id);
-    if (!lesson) throw new Error("Lesson not found");
+    if (!lesson) {
+      throw new Error("Lesson not found");
+    }
     await ctx.db.delete(args.id);
 
     // Re-number remaining lessons within unit
@@ -265,7 +261,9 @@ export const remove = mutation({
       .order("asc")
       .collect();
     for (const [index, l] of remaining.entries()) {
-      if (l.order !== index) await ctx.db.patch(l._id, { order: index });
+      if (l.order !== index) {
+        await ctx.db.patch(l._id, { order: index });
+      }
     }
 
     await ctx.db.insert("logs", {

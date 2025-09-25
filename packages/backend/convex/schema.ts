@@ -2,8 +2,13 @@ import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
 const applicationTables = {
+  siteUser: defineTable({
+    userId: v.string(),
+    role: v.union(v.literal("admin")),
+  }).index("by_user_id", ["userId"]),
   courses: defineTable({
-    id: v.string(),
+    //optional for legacy db
+    id: v.optional(v.string()),
     // subjuect Id stays a string for now
     subjectId: v.string(),
     name: v.string(),
@@ -25,7 +30,7 @@ const applicationTables = {
     }),
 
   courseUsers: defineTable({
-    id: v.string(),
+    id: v.optional(v.string()),
     courseId: v.id("courses"),
     userId: v.string(),
     role: v.union(v.literal("admin"), v.literal("editor"), v.literal("user")),
@@ -51,7 +56,7 @@ const applicationTables = {
     .index("by_role", ["role"]),
 
   units: defineTable({
-    id: v.string(),
+    id: v.optional(v.string()),
     courseId: v.id("courses"),
     name: v.string(),
     description: v.optional(v.string()),
@@ -71,7 +76,7 @@ const applicationTables = {
     }),
 
   lessons: defineTable({
-    id: v.string(),
+    id: v.optional(v.string()),
     order: v.number(),
     isPublished: v.boolean(),
     pureLink: v.boolean(),
@@ -98,14 +103,14 @@ const applicationTables = {
     }),
 
   lessonEmbeds: defineTable({
-    id: v.string(),
+    id: v.optional(v.string()),
     password: v.optional(v.string()),
     lessonId: v.id("lessons"),
     embedUrl: v.string(),
   }).index("by_lesson_id", ["lessonId"]),
 
   easyNoteCards: defineTable({
-    id: v.string(),
+    id: v.optional(v.string()),
     front: v.string(),
     embedding: v.optional(v.array(v.number())), // Vector embedding as array of numbers
     options: v.optional(v.array(v.string())),

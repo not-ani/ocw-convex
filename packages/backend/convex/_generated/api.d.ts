@@ -18,6 +18,7 @@ import type * as courseUsers from "../courseUsers.js";
 import type * as courses from "../courses.js";
 import type * as healthCheck from "../healthCheck.js";
 import type * as lesson from "../lesson.js";
+import type * as permissions from "../permissions.js";
 import type * as privateData from "../privateData.js";
 import type * as todos from "../todos.js";
 import type * as units from "../units.js";
@@ -36,6 +37,7 @@ declare const fullApi: ApiFromModules<{
   courses: typeof courses;
   healthCheck: typeof healthCheck;
   lesson: typeof lesson;
+  permissions: typeof permissions;
   privateData: typeof privateData;
   todos: typeof todos;
   units: typeof units;

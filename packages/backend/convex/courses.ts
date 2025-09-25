@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 import type { Doc } from "./_generated/dataModel";
 import { mutation, query } from "./_generated/server";
+import { assertEditorOrAdmin, getRequesterRole } from "./permissions";
 
 export const getPaginatedCourses = query({
   args: {
@@ -14,14 +15,12 @@ export const getPaginatedCourses = query({
 
     let allCourses: Doc<"courses">[];
 
-    // Apply search if provided
     if (search?.trim()) {
       allCourses = await ctx.db
         .query("courses")
         .withSearchIndex("search_name", (q) => q.search("name", search.trim()))
         .collect();
     } else {
-      // Filter to only show public courses when not searching
       allCourses = await ctx.db
         .query("courses")
         .withIndex("by_is_public", (q) => q.eq("isPublic", true))
@@ -96,37 +95,14 @@ export const getCourseWithUnitsAndLessons = query({
 export const getDashboardSummary = query({
   args: { courseId: v.id("courses"), userRole: v.optional(v.string()) },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-
-    const userRole = args.userRole;
-
-    const isUserRoleAllowed =
-      (typeof userRole === "string" && userRole === "admin") ||
-      (typeof userRole === "string" && userRole === "editor");
-
-    const membership = identity
-      ? await ctx.db
-          .query("courseUsers")
-          .withIndex("by_course_and_user", (q) =>
-            q
-              .eq("courseId", args.courseId)
-              .eq("userId", identity.tokenIdentifier)
-          )
-          .unique()
-      : null;
-    const isMembershipAllowed =
-      !!membership &&
-      (membership.role === "admin" || membership.role === "editor");
-
-    if (!(isMembershipAllowed || isUserRoleAllowed)) {
-      throw new Error("Not authorized");
-    }
-
     const course = await ctx.db.get(args.courseId);
 
     if (!course) {
       throw new Error("Course not found");
     }
+
+    const role = await getRequesterRole(ctx, args.courseId);
+    assertEditorOrAdmin(role);
 
     const units = await ctx.db
       .query("units")

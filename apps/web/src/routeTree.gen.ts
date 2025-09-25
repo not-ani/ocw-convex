@@ -14,6 +14,7 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as MarketingRouteImport } from './routes/_marketing'
 import { Route as MarketingIndexRouteImport } from './routes/_marketing/index'
+import { Route as MarketingTeachersRouteImport } from './routes/_marketing/teachers'
 import { Route as MarketingCoursesRouteImport } from './routes/_marketing/courses'
 import { Route as MarketingContributorsRouteImport } from './routes/_marketing/contributors'
 import { Route as MarketingContributeRouteImport } from './routes/_marketing/contribute'
@@ -46,6 +47,11 @@ const MarketingRoute = MarketingRouteImport.update({
 const MarketingIndexRoute = MarketingIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => MarketingRoute,
+} as any)
+const MarketingTeachersRoute = MarketingTeachersRouteImport.update({
+  id: '/teachers',
+  path: '/teachers',
   getParentRoute: () => MarketingRoute,
 } as any)
 const MarketingCoursesRoute = MarketingCoursesRouteImport.update({
@@ -104,6 +110,7 @@ export interface FileRoutesByFullPath {
   '/contribute': typeof MarketingContributeRoute
   '/contributors': typeof MarketingContributorsRoute
   '/courses': typeof MarketingCoursesRoute
+  '/teachers': typeof MarketingTeachersRoute
   '/': typeof MarketingIndexRoute
   '/course/$id/dashboard': typeof CourseIdDashboardRoute
   '/course/$id': typeof CourseIdIndexRoute
@@ -119,6 +126,7 @@ export interface FileRoutesByTo {
   '/contribute': typeof MarketingContributeRoute
   '/contributors': typeof MarketingContributorsRoute
   '/courses': typeof MarketingCoursesRoute
+  '/teachers': typeof MarketingTeachersRoute
   '/': typeof MarketingIndexRoute
   '/course/$id/dashboard': typeof CourseIdDashboardRoute
   '/course/$id': typeof CourseIdIndexRoute
@@ -136,6 +144,7 @@ export interface FileRoutesById {
   '/_marketing/contribute': typeof MarketingContributeRoute
   '/_marketing/contributors': typeof MarketingContributorsRoute
   '/_marketing/courses': typeof MarketingCoursesRoute
+  '/_marketing/teachers': typeof MarketingTeachersRoute
   '/_marketing/': typeof MarketingIndexRoute
   '/course/$id/dashboard': typeof CourseIdDashboardRoute
   '/course/$id/': typeof CourseIdIndexRoute
@@ -153,6 +162,7 @@ export interface FileRouteTypes {
     | '/contribute'
     | '/contributors'
     | '/courses'
+    | '/teachers'
     | '/'
     | '/course/$id/dashboard'
     | '/course/$id'
@@ -168,6 +178,7 @@ export interface FileRouteTypes {
     | '/contribute'
     | '/contributors'
     | '/courses'
+    | '/teachers'
     | '/'
     | '/course/$id/dashboard'
     | '/course/$id'
@@ -184,6 +195,7 @@ export interface FileRouteTypes {
     | '/_marketing/contribute'
     | '/_marketing/contributors'
     | '/_marketing/courses'
+    | '/_marketing/teachers'
     | '/_marketing/'
     | '/course/$id/dashboard'
     | '/course/$id/'
@@ -237,6 +249,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof MarketingIndexRouteImport
+      parentRoute: typeof MarketingRoute
+    }
+    '/_marketing/teachers': {
+      id: '/_marketing/teachers'
+      path: '/teachers'
+      fullPath: '/teachers'
+      preLoaderRoute: typeof MarketingTeachersRouteImport
       parentRoute: typeof MarketingRoute
     }
     '/_marketing/courses': {
@@ -311,6 +330,7 @@ interface MarketingRouteChildren {
   MarketingContributeRoute: typeof MarketingContributeRoute
   MarketingContributorsRoute: typeof MarketingContributorsRoute
   MarketingCoursesRoute: typeof MarketingCoursesRoute
+  MarketingTeachersRoute: typeof MarketingTeachersRoute
   MarketingIndexRoute: typeof MarketingIndexRoute
 }
 
@@ -320,6 +340,7 @@ const MarketingRouteChildren: MarketingRouteChildren = {
   MarketingContributeRoute: MarketingContributeRoute,
   MarketingContributorsRoute: MarketingContributorsRoute,
   MarketingCoursesRoute: MarketingCoursesRoute,
+  MarketingTeachersRoute: MarketingTeachersRoute,
   MarketingIndexRoute: MarketingIndexRoute,
 }
 

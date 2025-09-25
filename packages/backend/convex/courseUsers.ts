@@ -5,7 +5,9 @@ export const getMyMembership = query({
   args: { courseId: v.id("courses") },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
-    if (!identity) return null;
+    if (!identity) {
+      return null;
+    }
 
     const membership = await ctx.db
       .query("courseUsers")
@@ -14,7 +16,9 @@ export const getMyMembership = query({
       )
       .unique();
 
-    if (!membership) return null;
+    if (!membership) {
+      return null;
+    }
 
     return {
       role: membership.role,
@@ -27,7 +31,9 @@ export const countMembersByRole = query({
   args: { courseId: v.id("courses") },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
-    if (!identity) return null;
+    if (!identity) {
+      return null;
+    }
 
     const requester = await ctx.db
       .query("courseUsers")
@@ -71,7 +77,9 @@ export const listMembers = query({
   args: { courseId: v.id("courses") },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
-    if (!identity) return null;
+    if (!identity) {
+      return null;
+    }
 
     const requester = await ctx.db
       .query("courseUsers")
@@ -128,7 +136,9 @@ export const addOrUpdateMember = mutation({
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
-    if (!identity) return null;
+    if (!identity) {
+      return null;
+    }
     const requester = await ctx.db
       .query("courseUsers")
       .withIndex("by_course_and_user", (q) =>
@@ -161,7 +171,6 @@ export const addOrUpdateMember = mutation({
     }
 
     await ctx.db.insert("courseUsers", {
-      id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
       courseId: args.courseId,
       userId: args.userId,
       role: args.role,
@@ -176,7 +185,9 @@ export const removeMember = mutation({
   args: { courseId: v.id("courses"), userId: v.string() },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
-    if (!identity) return null;
+    if (!identity) {
+      return null;
+    }
     const requester = await ctx.db
       .query("courseUsers")
       .withIndex("by_course_and_user", (q) =>
@@ -199,7 +210,9 @@ export const removeMember = mutation({
         q.eq("courseId", args.courseId).eq("userId", args.userId)
       )
       .unique();
-    if (!existing) return { removed: false } as const;
+    if (!existing) {
+      return { removed: false } as const;
+    }
     await ctx.db.delete(existing._id);
     return { removed: true } as const;
   },

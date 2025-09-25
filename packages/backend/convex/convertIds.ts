@@ -1,3 +1,4 @@
+/*
 import { type MutationCtx, mutation } from "./_generated/server";
 
 type TableName =
@@ -19,11 +20,15 @@ async function getConvexIdFromMaybeIdString<T extends TableName>(
   table: T,
   value: string | null | undefined
 ): Promise<string | null> {
-  if (!value) return null;
+  if (!value) {
+    return null;
+  }
   const normalized = ctx.db.normalizeId(table, value);
   if (normalized) {
     const existing = await ctx.db.get(normalized);
-    if (existing) return normalized as unknown as string;
+    if (existing) {
+      return normalized as unknown as string;
+    }
   }
   return null;
 }
@@ -33,13 +38,15 @@ async function lookupConvexIdByLegacyId<T extends TableName>(
   table: T,
   legacyId: string | null | undefined
 ): Promise<string | null> {
-  if (!legacyId) return null;
+  if (!legacyId) {
+    return null;
+  }
   const doc = await ctx.db
     .query(table)
-    .filter((q: any) => q.eq(q.field("id"), legacyId))
+    .filter((q) => q.eq(q.field("id"), legacyId))
     .first();
   return doc ? (doc._id as unknown as string) : null;
-}
+  }
 
 export const migrateRelations = mutation({
   args: {},
@@ -79,8 +86,9 @@ export const migrateRelations = mutation({
           u.courseId
         );
         let target: string | null = asConvex;
-        if (!target)
+        if (!target) {
           target = await lookupConvexIdByLegacyId(ctx, "courses", u.courseId);
+        }
         if (target) {
           if (u.courseId !== target) {
             await ctx.db.patch(u._id, { courseId: target });
@@ -309,3 +317,4 @@ export const migrateRelations = mutation({
     return result;
   },
 });
+ */

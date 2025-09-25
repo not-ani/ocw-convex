@@ -1,23 +1,6 @@
 import { v } from "convex/values";
-import { type MutationCtx, mutation, query } from "./_generated/server";
-
-function assertEditorOrAdmin(role: string | null) {
-  if (!(role === "admin" || role === "editor")) {
-    throw new Error("Not authorized");
-  }
-}
-
-async function getRequesterRole(ctx: MutationCtx, courseId: string) {
-  const identity = await ctx.auth.getUserIdentity();
-  if (!identity) return null;
-  const membership = await ctx.db
-    .query("courseUsers")
-    .withIndex("by_course_and_user", (q) =>
-      q.eq("courseId", courseId as any).eq("userId", identity.tokenIdentifier)
-    )
-    .unique();
-  return membership?.role ?? null;
-}
+import { mutation, query } from "./_generated/server";
+import { assertEditorOrAdmin, getRequesterRole } from "./permissions";
 
 export const getTableData = query({
   args: { courseId: v.id("courses") },
@@ -65,7 +48,6 @@ export const create = mutation({
 
     const order = count.length;
     const id = await ctx.db.insert("units", {
-      id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
       courseId: args.courseId,
       name: args.unitName,
       description: args.description ?? undefined,
@@ -100,8 +82,9 @@ export const update = mutation({
     assertEditorOrAdmin(role);
 
     const unit = await ctx.db.get(args.data.id);
-    if (!(unit && unit.courseId === args.courseId))
+    if (!(unit && unit.courseId === args.courseId)) {
       throw new Error("Unit not found");
+    }
 
     await ctx.db.patch(args.data.id, {
       name: args.data.name ?? unit.name,
@@ -167,8 +150,9 @@ export const remove = mutation({
     assertEditorOrAdmin(role);
 
     const unit = await ctx.db.get(args.id);
-    if (!(unit && unit.courseId === args.courseId))
+    if (!(unit && unit.courseId === args.courseId)) {
       throw new Error("Unit not found");
+    }
 
     await ctx.db.delete(args.id);
 
@@ -179,7 +163,9 @@ export const remove = mutation({
       .order("asc")
       .collect();
     for (const [index, u] of remaining.entries()) {
-      if (u.order !== index) await ctx.db.patch(u._id, { order: index });
+      if (u.order !== index) {
+        await ctx.db.patch(u._id, { order: index });
+      }
     }
 
     await ctx.db.insert("logs", {
