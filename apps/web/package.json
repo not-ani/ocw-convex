@@ -29,7 +29,7 @@
     "@tailwindcss/vite": "^4.0.15",
     "@tanstack/nitro-v2-vite-plugin": "^1.132.0",
     "@tanstack/react-form": "^1.12.3",
-    "@tanstack/react-router": "^1.114.25",
+    "@tanstack/react-router": "^1.132.7",
     "@tanstack/react-start": "^1.132.7",
     "@tanstack/react-table": "^8.21.3",
     "@tanstack/zod-adapter": "^1.131.44",
@@ -63,6 +63,6 @@
     "postcss": "^8.5.3",
     "typescript": "^5.8.3",
     "tailwindcss": "^4.0.15",
-    "vite": "^6.2.2"
+    "vite": "^7.1.7"
   }
 }

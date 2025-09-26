@@ -6,12 +6,7 @@ import { defineConfig } from "vite";
 import tsConfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
-  plugins: [
-    tsConfigPaths({ projects: ["./tsconfig.json"] }),
-    tanstackStart(),
-    nitroV2Plugin(),
-    viteReact(),
-  ],
+  plugins: [tsConfigPaths(), tanstackStart(), nitroV2Plugin(), viteReact()],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
