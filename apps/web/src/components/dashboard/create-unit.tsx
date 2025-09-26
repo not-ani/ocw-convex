@@ -40,7 +40,6 @@ export function CreateUnitForm({ callback, courseId }: CreateUnitFormProps) {
     resolver: zodResolver(formSchema),
   });
 
-  const { user } = useUser();
   const mutate = useMutation(api.units.create);
 
   function onSubmit(values: z.infer<typeof formSchema>) {
@@ -58,7 +57,7 @@ export function CreateUnitForm({ callback, courseId }: CreateUnitFormProps) {
   return (
     <Form {...form}>
       <form
-        className="flex flex-col justify-evenly gap-4 p-4"
+        className="flex flex-col justify-evenly gap-4"
         onSubmit={form.handleSubmit(onSubmit)}
       >
         <FormField

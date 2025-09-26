@@ -21,7 +21,8 @@ import { Route as MarketingContributeRouteImport } from './routes/_marketing/con
 import { Route as MarketingContactRouteImport } from './routes/_marketing/contact'
 import { Route as MarketingAboutRouteImport } from './routes/_marketing/about'
 import { Route as CourseIdIndexRouteImport } from './routes/course/$id/index'
-import { Route as CourseIdDashboardRouteImport } from './routes/course/$id/dashboard'
+import { Route as CourseIdDashboardRouteRouteImport } from './routes/course/$id/dashboard/route'
+import { Route as CourseIdDashboardIndexRouteImport } from './routes/course/$id/dashboard/index'
 import { Route as CourseIdUnitIdIndexRouteImport } from './routes/course/$id/$unitId/index'
 import { Route as CourseIdUnitIdLessonIdIndexRouteImport } from './routes/course/$id/$unitId/$lessonId/index'
 
@@ -84,10 +85,15 @@ const CourseIdIndexRoute = CourseIdIndexRouteImport.update({
   path: '/course/$id/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CourseIdDashboardRoute = CourseIdDashboardRouteImport.update({
+const CourseIdDashboardRouteRoute = CourseIdDashboardRouteRouteImport.update({
   id: '/course/$id/dashboard',
   path: '/course/$id/dashboard',
   getParentRoute: () => rootRouteImport,
+} as any)
+const CourseIdDashboardIndexRoute = CourseIdDashboardIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => CourseIdDashboardRouteRoute,
 } as any)
 const CourseIdUnitIdIndexRoute = CourseIdUnitIdIndexRouteImport.update({
   id: '/course/$id/$unitId/',
@@ -112,9 +118,10 @@ export interface FileRoutesByFullPath {
   '/courses': typeof MarketingCoursesRoute
   '/teachers': typeof MarketingTeachersRoute
   '/': typeof MarketingIndexRoute
-  '/course/$id/dashboard': typeof CourseIdDashboardRoute
+  '/course/$id/dashboard': typeof CourseIdDashboardRouteRouteWithChildren
   '/course/$id': typeof CourseIdIndexRoute
   '/course/$id/$unitId': typeof CourseIdUnitIdIndexRoute
+  '/course/$id/dashboard/': typeof CourseIdDashboardIndexRoute
   '/course/$id/$unitId/$lessonId': typeof CourseIdUnitIdLessonIdIndexRoute
 }
 export interface FileRoutesByTo {
@@ -128,9 +135,9 @@ export interface FileRoutesByTo {
   '/courses': typeof MarketingCoursesRoute
   '/teachers': typeof MarketingTeachersRoute
   '/': typeof MarketingIndexRoute
-  '/course/$id/dashboard': typeof CourseIdDashboardRoute
   '/course/$id': typeof CourseIdIndexRoute
   '/course/$id/$unitId': typeof CourseIdUnitIdIndexRoute
+  '/course/$id/dashboard': typeof CourseIdDashboardIndexRoute
   '/course/$id/$unitId/$lessonId': typeof CourseIdUnitIdLessonIdIndexRoute
 }
 export interface FileRoutesById {
@@ -146,9 +153,10 @@ export interface FileRoutesById {
   '/_marketing/courses': typeof MarketingCoursesRoute
   '/_marketing/teachers': typeof MarketingTeachersRoute
   '/_marketing/': typeof MarketingIndexRoute
-  '/course/$id/dashboard': typeof CourseIdDashboardRoute
+  '/course/$id/dashboard': typeof CourseIdDashboardRouteRouteWithChildren
   '/course/$id/': typeof CourseIdIndexRoute
   '/course/$id/$unitId/': typeof CourseIdUnitIdIndexRoute
+  '/course/$id/dashboard/': typeof CourseIdDashboardIndexRoute
   '/course/$id/$unitId/$lessonId/': typeof CourseIdUnitIdLessonIdIndexRoute
 }
 export interface FileRouteTypes {
@@ -167,6 +175,7 @@ export interface FileRouteTypes {
     | '/course/$id/dashboard'
     | '/course/$id'
     | '/course/$id/$unitId'
+    | '/course/$id/dashboard/'
     | '/course/$id/$unitId/$lessonId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -180,9 +189,9 @@ export interface FileRouteTypes {
     | '/courses'
     | '/teachers'
     | '/'
-    | '/course/$id/dashboard'
     | '/course/$id'
     | '/course/$id/$unitId'
+    | '/course/$id/dashboard'
     | '/course/$id/$unitId/$lessonId'
   id:
     | '__root__'
@@ -200,6 +209,7 @@ export interface FileRouteTypes {
     | '/course/$id/dashboard'
     | '/course/$id/'
     | '/course/$id/$unitId/'
+    | '/course/$id/dashboard/'
     | '/course/$id/$unitId/$lessonId/'
   fileRoutesById: FileRoutesById
 }
@@ -208,7 +218,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   DashboardRoute: typeof DashboardRoute
   TodosRoute: typeof TodosRoute
-  CourseIdDashboardRoute: typeof CourseIdDashboardRoute
+  CourseIdDashboardRouteRoute: typeof CourseIdDashboardRouteRouteWithChildren
   CourseIdIndexRoute: typeof CourseIdIndexRoute
   CourseIdUnitIdIndexRoute: typeof CourseIdUnitIdIndexRoute
   CourseIdUnitIdLessonIdIndexRoute: typeof CourseIdUnitIdLessonIdIndexRoute
@@ -304,8 +314,15 @@ declare module '@tanstack/react-router' {
       id: '/course/$id/dashboard'
       path: '/course/$id/dashboard'
       fullPath: '/course/$id/dashboard'
-      preLoaderRoute: typeof CourseIdDashboardRouteImport
+      preLoaderRoute: typeof CourseIdDashboardRouteRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/course/$id/dashboard/': {
+      id: '/course/$id/dashboard/'
+      path: '/'
+      fullPath: '/course/$id/dashboard/'
+      preLoaderRoute: typeof CourseIdDashboardIndexRouteImport
+      parentRoute: typeof CourseIdDashboardRouteRoute
     }
     '/course/$id/$unitId/': {
       id: '/course/$id/$unitId/'
@@ -348,12 +365,26 @@ const MarketingRouteWithChildren = MarketingRoute._addFileChildren(
   MarketingRouteChildren,
 )
 
+interface CourseIdDashboardRouteRouteChildren {
+  CourseIdDashboardIndexRoute: typeof CourseIdDashboardIndexRoute
+}
+
+const CourseIdDashboardRouteRouteChildren: CourseIdDashboardRouteRouteChildren =
+  {
+    CourseIdDashboardIndexRoute: CourseIdDashboardIndexRoute,
+  }
+
+const CourseIdDashboardRouteRouteWithChildren =
+  CourseIdDashboardRouteRoute._addFileChildren(
+    CourseIdDashboardRouteRouteChildren,
+  )
+
 const rootRouteChildren: RootRouteChildren = {
   MarketingRoute: MarketingRouteWithChildren,
   AdminRoute: AdminRoute,
   DashboardRoute: DashboardRoute,
   TodosRoute: TodosRoute,
-  CourseIdDashboardRoute: CourseIdDashboardRoute,
+  CourseIdDashboardRouteRoute: CourseIdDashboardRouteRouteWithChildren,
   CourseIdIndexRoute: CourseIdIndexRoute,
   CourseIdUnitIdIndexRoute: CourseIdUnitIdIndexRoute,
   CourseIdUnitIdLessonIdIndexRoute: CourseIdUnitIdLessonIdIndexRoute,

@@ -1,14 +1,4 @@
 import { SignInButton, useUser } from "@clerk/clerk-react";
-import {
-  closestCenter,
-  DndContext,
-  KeyboardSensor,
-  MouseSensor,
-  TouchSensor,
-  useSensor,
-  useSensors,
-} from "@dnd-kit/core";
-import { arrayMove } from "@dnd-kit/sortable";
 import { api } from "@ocw-convex/backend/convex/_generated/api";
 import type { Id } from "@ocw-convex/backend/convex/_generated/dataModel";
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -21,12 +11,11 @@ import {
 } from "convex/react";
 import { useCallback, useEffect, useState } from "react";
 import { CreateUnitDialog } from "@/components/dashboard/create-unit";
-import { LessonsCard } from "@/components/dashboard/lesson-card";
-import { UnitsCard } from "@/components/dashboard/units-card";
+import { UnitsTable } from "@/components/dashboard/units-table";
 import { Button } from "@/components/ui/button";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 
-export const Route = createFileRoute("/course/$id/dashboard")({
+export const Route = createFileRoute("/course/$id/dashboard/")({
   component: RouteComponent,
 });
 
@@ -52,7 +41,6 @@ function Content() {
 
   const units = useQuery(api.units.getTableData, { courseId });
 
-  const createUnit = useMutation(api.units.create);
   const updateUnit = useMutation(api.units.update);
   const reorderUnits = useMutation(api.units.reorder);
   const removeUnit = useMutation(api.units.remove);
@@ -68,30 +56,18 @@ function Content() {
     membership?.role === "editor" ||
     userRole === "admin";
 
-  const sensors = useSensors(
-    useSensor(MouseSensor),
-    useSensor(TouchSensor),
-    useSensor(KeyboardSensor)
-  );
-
   const [selectedUnitId, setSelectedUnitId] = useState<null | Id<"units">>(
     null
   );
 
   const unitList = units ?? [];
-  const [localUnits, setLocalUnits] = useState(unitList);
-
-  // Keep local copy in sync with server updates
-  useEffect(() => {
-    setLocalUnits(unitList);
-  }, [unitList]);
 
   // When units load set a default selection.
   useEffect(() => {
-    if (!selectedUnitId && localUnits[0]) {
-      setSelectedUnitId(localUnits[0].id as Id<"units">);
+    if (!selectedUnitId && unitList[0]) {
+      setSelectedUnitId(unitList[0].id as Id<"units">);
     }
-  }, [selectedUnitId, localUnits]);
+  }, [selectedUnitId, unitList]);
 
   const handleUpdateUnit = useCallback(
     async (payload: {
@@ -120,61 +96,6 @@ function Content() {
       await reorderUnits({ courseId, data });
     },
     [reorderUnits, courseId]
-  );
-
-  // Lesson handlers forwarded to LessonsCard
-  const handleCreateLesson = useCallback(
-    async (payload: {
-      unitId: Id<"units">;
-      name: string;
-      embedRaw?: string;
-    }) => {
-      await createLesson({
-        courseId,
-        unitId: payload.unitId,
-        name: payload.name,
-        embedRaw: payload.embedRaw,
-      });
-    },
-    [createLesson, courseId]
-  );
-
-  const handleUpdateLesson = useCallback(
-    async (data: { id: Id<"lessons">; isPublished?: boolean }) => {
-      await updateLesson({ courseId, data });
-    },
-    [updateLesson, courseId]
-  );
-
-  const handleRemoveLesson = useCallback(
-    async (id: Id<"lessons">) => {
-      await removeLesson({ courseId, id });
-    },
-    [removeLesson, courseId]
-  );
-
-  const handleReorderLesson = useCallback(
-    async (payload: {
-      unitId: Id<"units">;
-      data: { id: Id<"lessons">; position: number }[];
-    }) => {
-      await reorderLesson({
-        courseId,
-        unitId: payload.unitId,
-        data: payload.data,
-      });
-    },
-    [reorderLesson, courseId]
-  );
-
-  const handleUpdateEmbed = useCallback(
-    async (lessonId: Id<"lessons">, raw: string) => {
-      if (!raw.trim()) {
-        return;
-      }
-      await updateEmbed({ lessonId, raw: raw.trim() });
-    },
-    [updateEmbed]
   );
 
   const isLoadingData = dashboard === undefined || units === undefined;
@@ -238,51 +159,12 @@ function Content() {
         </div>
       </div>
 
-      <DndContext
-        collisionDetection={closestCenter}
-        onDragEnd={({ active, over }) => {
-          if (!over || active.id === over.id) {
-            return;
-          }
-          const oldIndex = localUnits.findIndex(
-            (u) => String(u.id) === String(active.id)
-          );
-          const newIndex = localUnits.findIndex(
-            (u) => String(u.id) === String(over.id)
-          );
-          if (oldIndex === -1 || newIndex === -1) {
-            return;
-          }
-          const prev = localUnits;
-          const reordered = arrayMove(localUnits, oldIndex, newIndex);
-          // Optimistically update UI
-          setLocalUnits(reordered);
-          const data = reordered.map((u, index) => ({
-            id: u.id as Id<"units">,
-            position: index,
-          }));
-          handleReorderUnits(data).catch(() => setLocalUnits(prev));
-        }}
-        sensors={sensors}
-      >
-        <UnitsCard
-          onDeleteUnit={handleRemoveUnit}
-          onReorder={handleReorderUnits}
-          onSelectUnit={setSelectedUnitId}
-          onTogglePublish={handleUpdateUnit}
-          selectedUnitId={selectedUnitId}
-          units={localUnits}
-        />
-      </DndContext>
-
-      <LessonsCard
+      <UnitsTable
         courseId={courseId}
-        onCreateLesson={handleCreateLesson}
-        onDeleteLesson={handleRemoveLesson}
-        onReorderLesson={handleReorderLesson}
-        onTogglePublish={handleUpdateLesson}
-        onUpdateEmbed={handleUpdateEmbed}
-        selectedUnitId={selectedUnitId}
+        onRemoveUnit={handleRemoveUnit}
+        onReorder={handleReorderUnits}
+        onUpdateUnit={handleUpdateUnit}
+        units={unitList}
       />
     </div>
   );
@@ -292,8 +174,8 @@ function RouteComponent() {
   return (
     <div className="mx-auto w-full max-w-7xl p-4 sm:p-6">
       <Authenticated>
-        <Content />
-      </Authenticated>
+      <Content />
+     </Authenticated>
 
       <Unauthenticated>
         <div className="mx-auto max-w-xl text-center">

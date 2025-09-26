@@ -48,7 +48,7 @@ function RootComponent() {
         disableTransitionOnChange
         storageKey="vite-ui-theme"
       >
-        <div className="flex flex-col px-10">
+        <div className="flex flex-col">
           <div className="grid h-svh grid-rows-[auto_1fr]">
             {isFetching ? <Loader /> : <Outlet />}
           </div>

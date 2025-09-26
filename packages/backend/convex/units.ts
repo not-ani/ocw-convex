@@ -35,7 +35,6 @@ export const create = mutation({
     description: v.optional(v.string()),
     isPublished: v.optional(v.boolean()),
     unitName: v.string(),
-    role: v.string(),
   },
   handler: async (ctx, args) => {
     const role = await getRequesterRole(ctx, args.courseId);

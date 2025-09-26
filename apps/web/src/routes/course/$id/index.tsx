@@ -20,53 +20,52 @@ function RouteComponent() {
   const course = useQuery(api.courses.getCourseWithUnitsAndLessons, {
     id: id as Id<"courses">,
   });
-
   if (!course) {
     return (
-      <div className="flex min-h-screen flex-col">
-        <div className="flex flex-1">
-          {/* Sidebar Skeleton */}
-          <div className="w-96 border-r bg-background p-6">
-            <div className="mb-6">
-              <Skeleton className="h-16 w-full rounded-lg" />
-            </div>
-            <div className="space-y-4">
-              {Array.from({ length: 10 }).map((_, index) => (
-                <div className="space-y-2" key={index}>
-                  <Skeleton className="h-4 w-16" />
-                  <Skeleton className="h-6 w-full" />
-                </div>
-              ))}
-            </div>
+      <div className="flex min-h-screen flex-col md:flex-row">
+        {/* Sidebar Skeleton: full width on small, fixed on md+ */}
+        <aside className="hidden w-full border-b bg-background p-4 md:block md:w-96 md:border-r md:border-b-0 md:p-6">
+          <div className="mb-6">
+            <Skeleton className="h-16 w-full rounded-lg" />
           </div>
 
-          {/* Main Content Area Skeleton */}
-          <div className="flex-1 p-6 pt-8">
-            <Skeleton className="mb-6 h-10 w-3/4" />
-            <div className="space-y-6">
-              {Array.from({ length: 3 }).map((_, index) => (
-                <div className="rounded-lg border p-4" key={index}>
-                  <div className="mb-4 flex items-center gap-4">
-                    <Skeleton className="h-8 w-8 rounded-full" />
-                    <div className="flex-1 space-y-2">
-                      <Skeleton className="h-6 w-3/4" />
-                      <Skeleton className="h-4 w-1/4" />
-                    </div>
-                  </div>
-                  <div className="space-y-3 pl-12">
-                    {Array.from({ length: 5 }).map((_, subIndex) => (
-                      <Skeleton className="h-4 w-full" key={subIndex} />
-                    ))}
+          <div className="space-y-4">
+            {Array.from({ length: 10 }).map((_, i) => (
+              <div className="space-y-2" key={i}>
+                <Skeleton className="h-4 w-24 sm:w-32" />
+                <Skeleton className="h-6 w-full" />
+              </div>
+            ))}
+          </div>
+        </aside>
+
+        {/* Main Content Area Skeleton */}
+        <main className="flex-1 p-4 pt-6 md:p-6 md:pt-8">
+          <Skeleton className="mb-6 h-10 w-3/4 sm:w-2/3 md:w-3/4" />
+
+          <div className="space-y-6">
+            {Array.from({ length: 3 }).map((_, index) => (
+              <div className="rounded-lg border p-4" key={index}>
+                <div className="mb-4 flex items-center gap-4">
+                  <Skeleton className="h-8 w-8 rounded-full" />
+                  <div className="flex-1 space-y-2">
+                    <Skeleton className="h-6 w-3/4 sm:w-2/3 md:w-3/4" />
+                    <Skeleton className="h-4 w-1/4 sm:w-1/6" />
                   </div>
                 </div>
-              ))}
-            </div>
+
+                <div className="space-y-3 pl-0 sm:pl-8">
+                  {Array.from({ length: 5 }).map((_, subIndex) => (
+                    <Skeleton className="h-4 w-full" key={subIndex} />
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
-        </div>
+        </main>
       </div>
     );
   }
-
   return (
     <div>
       <Header1 />
