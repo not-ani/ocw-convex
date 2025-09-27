@@ -1,3 +1,4 @@
+import { ClerkProvider } from "@clerk/tanstack-react-start";
 import {
   createRootRouteWithContext,
   HeadContent,
@@ -42,19 +43,24 @@ function RootComponent() {
   return (
     <>
       <HeadContent />
-      <ThemeProvider
-        attribute="class"
-        defaultTheme="light"
-        disableTransitionOnChange
-        storageKey="vite-ui-theme"
+
+      <ClerkProvider
+        publishableKey={import.meta.env.VITE_CLERK_PUBLISHABLE_KEY}
       >
-        <div className="flex flex-col">
-          <div className="grid h-svh grid-rows-[auto_1fr]">
-            {isFetching ? <Loader /> : <Outlet />}
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          disableTransitionOnChange
+          storageKey="vite-ui-theme"
+        >
+          <div className="flex flex-col">
+            <div className="grid h-svh grid-rows-[auto_1fr]">
+              {isFetching ? <Loader /> : <Outlet />}
+            </div>
           </div>
-        </div>
-        <Toaster richColors />
-      </ThemeProvider>
+          <Toaster richColors />
+        </ThemeProvider>
+      </ClerkProvider>
       <TanStackRouterDevtools position="bottom-left" />
     </>
   );

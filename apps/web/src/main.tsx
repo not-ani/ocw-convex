@@ -1,4 +1,4 @@
-import { ClerkProvider, useAuth } from "@clerk/clerk-react";
+import { useAuth } from "@clerk/clerk-react";
 import { createRouter, RouterProvider } from "@tanstack/react-router";
 import { ConvexReactClient } from "convex/react";
 import { ConvexProviderWithClerk } from "convex/react-clerk";
@@ -40,13 +40,9 @@ if (!rootElement.innerHTML) {
         debug: import.meta.env.MODE === "development",
       }}
     >
-      <ClerkProvider
-        publishableKey={import.meta.env.VITE_CLERK_PUBLISHABLE_KEY}
-      >
-        <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
-          <RouterProvider router={router} />
-        </ConvexProviderWithClerk>
-      </ClerkProvider>
+      <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
+        <RouterProvider router={router} />
+      </ConvexProviderWithClerk>
     </PostHogProvider>
   );
 }
