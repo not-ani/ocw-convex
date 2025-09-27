@@ -14,17 +14,6 @@ const router = createRouter({
   defaultPreload: "intent",
   defaultPendingComponent: () => <Loader />,
   context: {},
-  Wrap({ children }: { children: React.ReactNode }) {
-    return (
-      <ClerkProvider
-        publishableKey={import.meta.env.VITE_CLERK_PUBLISHABLE_KEY}
-      >
-        <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
-          {children}
-        </ConvexProviderWithClerk>
-      </ClerkProvider>
-    );
-  },
 });
 
 declare module "@tanstack/react-router" {
@@ -51,7 +40,13 @@ if (!rootElement.innerHTML) {
         debug: import.meta.env.MODE === "development",
       }}
     >
-      <RouterProvider router={router} />
+      <ClerkProvider
+        publishableKey={import.meta.env.VITE_CLERK_PUBLISHABLE_KEY}
+      >
+        <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
+          <RouterProvider router={router} />
+        </ConvexProviderWithClerk>
+      </ClerkProvider>
     </PostHogProvider>
   );
 }

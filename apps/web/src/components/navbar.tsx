@@ -68,37 +68,33 @@ function Header1() {
             viewport={false}
           >
             <NavigationMenuList className="flex flex-row justify-start gap-4">
-              {navigationItems.map((item) => (
-                <>
-                  {item.href ? (
-                    <NavigationMenuItem>
-                      <NavigationMenuLink
-                        asChild
-                        className={navigationMenuTriggerStyle()}
-                      >
-                        <Link to={item.href}>{item.title}</Link>
-                      </NavigationMenuLink>
-                    </NavigationMenuItem>
-                  ) : (
-                    <NavigationMenuItem key={item.title}>
-                      <NavigationMenuTrigger>
-                        {item.title}
-                      </NavigationMenuTrigger>
-                      <NavigationMenuContent>
-                        <ul className="grid w-[200px] gap-4">
-                          {item.items?.map((subItem) => (
-                            <li key={subItem.title}>
-                              <NavigationMenuLink asChild>
-                                <Link to={subItem.href}>{subItem.title}</Link>
-                              </NavigationMenuLink>
-                            </li>
-                          ))}
-                        </ul>
-                      </NavigationMenuContent>
-                    </NavigationMenuItem>
-                  )}
-                </>
-              ))}
+              {navigationItems.map((item) =>
+                item.href ? (
+                  <NavigationMenuItem key={item.title}>
+                    <NavigationMenuLink
+                      asChild
+                      className={navigationMenuTriggerStyle()}
+                    >
+                      <Link to={item.href}>{item.title}</Link>
+                    </NavigationMenuLink>
+                  </NavigationMenuItem>
+                ) : (
+                  <NavigationMenuItem key={item.title}>
+                    <NavigationMenuTrigger>{item.title}</NavigationMenuTrigger>
+                    <NavigationMenuContent>
+                      <ul className="grid w-[200px] gap-4">
+                        {item.items?.map((subItem) => (
+                          <li key={subItem.title}>
+                            <NavigationMenuLink asChild>
+                              <Link to={subItem.href}>{subItem.title}</Link>
+                            </NavigationMenuLink>
+                          </li>
+                        ))}
+                      </ul>
+                    </NavigationMenuContent>
+                  </NavigationMenuItem>
+                )
+              )}
             </NavigationMenuList>
           </NavigationMenu>
         </div>

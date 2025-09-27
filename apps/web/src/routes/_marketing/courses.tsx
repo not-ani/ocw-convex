@@ -12,11 +12,12 @@ export const Route = createFileRoute("/_marketing/courses")({
 });
 
 const COURSES_PER_PAGE = 12;
+const SEARCH_DEBOUNCE_MS = 300;
 
 function CoursesPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchInput, setSearchInput] = useState("");
-  const debouncedSearch = useDebouncedValue(searchInput, 300);
+  const debouncedSearch = useDebouncedValue(searchInput, SEARCH_DEBOUNCE_MS);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -95,5 +96,3 @@ function CoursesPage() {
     </div>
   );
 }
-
-export default CoursesPage;
