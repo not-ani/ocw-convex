@@ -7,6 +7,9 @@ import tsConfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
   plugins: [tsConfigPaths(), tanstackStart(), nitroV2Plugin(), viteReact()],
+  optimizeDeps: {
+    include: ["@dnd-kit/utilities"],
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
