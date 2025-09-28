@@ -6,7 +6,10 @@ import { defineConfig } from "vite";
 import tsConfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
-  plugins: [tsConfigPaths(), tanstackStart(), nitroV2Plugin(), viteReact()],
+  plugins: [tsConfigPaths({
+  }), tanstackStart({
+    srcDirectory: "src"
+  }), nitroV2Plugin(), viteReact()],
   build: {
     rollupOptions: {
       external: ["@dnd-kit/utilities"],
